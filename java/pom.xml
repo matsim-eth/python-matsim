@@ -90,13 +90,21 @@
                             <addProtoSources>all</addProtoSources>
                             <includeMavenTypes>direct</includeMavenTypes>
 							<protocArtifact>com.google.protobuf:protoc:3.0.0</protocArtifact>
-							<outputDirectory>src/main/java/</outputDirectory>
-							<inputDirectories>
-								<include>../</include>
-							</inputDirectories>
-							<includeDirectories>
-								<include>../</include>
-							</includeDirectories>
+                            <inputDirectories>
+                                <include>src/main/resources/</include>
+                            </inputDirectories>
+
+                            <outputTargets>
+                                <outputTarget>
+                                    <type>java</type>
+                                    <outputDirectory>target/generated-sources/</outputDirectory>
+                                </outputTarget>
+                                <outputTarget>
+                                    <type>python</type>
+                                    <outputDirectory>target/python</outputDirectory>
+                                </outputTarget>
+                            </outputTargets>
+
 						</configuration>
 					</execution>
 				</executions>
