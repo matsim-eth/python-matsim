@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+import "proto/events.proto";
+
+package org.matsim.contrib.pythonmatsim.protobuf;
+
+message EventBuffer {
+    repeated .protobuf.Event events = 1;
+}
