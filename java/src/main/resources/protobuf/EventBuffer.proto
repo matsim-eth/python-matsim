@@ -5,5 +5,5 @@ import "proto/events.proto";
 package org.matsim.contrib.pythonmatsim.protobuf;
 
 message EventBuffer {
-    repeated .protobuf.Event events = 1;
+    repeated .protobuf.Event event = 1;
 }
