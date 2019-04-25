@@ -61,11 +61,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>org.matsim.contrib</groupId>
             <artifactId>protobuf</artifactId>
             <version>${matsim.protobuf.version}</version>
         </dependency>
+        -->
 
         <dependency>
 			<groupId>com.google.protobuf</groupId>
@@ -87,22 +89,21 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
+                            <!--
                             <addProtoSources>all</addProtoSources>
                             <includeMavenTypes>direct</includeMavenTypes>
                             <compileMavenTypes>direct</compileMavenTypes>
+                            -->
 							<protocArtifact>com.google.protobuf:protoc:3.0.0</protocArtifact>
-                            <inputDirectories>
-                                <include>src/main/resources/</include>
-                            </inputDirectories>
 
                             <outputTargets>
                                 <outputTarget>
                                     <type>java</type>
-                                    <outputDirectory>${project.build.directory}/generated-sources/</outputDirectory>
+                                    <outputDirectorySuffix>java/</outputDirectorySuffix>
                                 </outputTarget>
                                 <outputTarget>
                                     <type>python</type>
-                                    <outputDirectory>${project.build.directory}/python</outputDirectory>
+                                    <outputDirectorySuffix>python/</outputDirectorySuffix>
                                 </outputTarget>
                             </outputTargets>
 
@@ -145,11 +146,6 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.matsim.gui.MATSimGUI</mainClass>
-                        </manifest>
-                    </archive>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,9 +1,9 @@
 package org.matsim.contrib.pythonmatsim.events;
 
 import org.matsim.api.core.v01.events.Event;
-import org.matsim.contrib.protobuf.Event2ProtoEvent;
-import org.matsim.contrib.protobuf.events.ProtobufEvents;
+import org.matsim.contrib.pythonmatsim.protobuf.Event2ProtoEvent;
 import org.matsim.contrib.pythonmatsim.protobuf.EventBufferOuterClass;
+import org.matsim.contrib.pythonmatsim.protobuf.ProtobufEvents;
 import org.matsim.core.events.LastEventOfIteration;
 import org.matsim.core.events.LastEventOfSimStep;
 import org.matsim.core.events.handler.BasicEventHandler;
