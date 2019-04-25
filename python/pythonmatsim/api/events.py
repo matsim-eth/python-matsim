@@ -71,7 +71,7 @@ def listen_to(*act_types):
     return decorator
 
 
-def create_buffered_event_handler(handler, buffer_size):
+def create_buffered_event_handler(handler, buffer_size=1):
     class ProtobufHandler:
         def reset(self, iteration):
             if hasattr(handler, "reset"):
@@ -87,3 +87,9 @@ def create_buffered_event_handler(handler, buffer_size):
 
     impl = jp.JProxy("org.matsim.contrib.pythonmatsim.events.BufferedProtocolBufferSender$Listener", inst=ProtobufHandler())
     return BufferedProtocolBufferSender(buffer_size, impl)
+
+
+def add_event_handler(controler, handler, buffer_size=1):
+    wrapped = create_buffered_event_handler(handler, buffer_size)
+    controler.getEvents().addHandler(wrapped)
+    controler.addControlerListener(wrapped)

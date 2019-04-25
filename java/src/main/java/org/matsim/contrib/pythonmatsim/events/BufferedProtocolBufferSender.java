@@ -4,21 +4,21 @@ import org.matsim.api.core.v01.events.Event;
 import org.matsim.contrib.pythonmatsim.protobuf.Event2ProtoEvent;
 import org.matsim.contrib.pythonmatsim.protobuf.EventBufferOuterClass;
 import org.matsim.contrib.pythonmatsim.protobuf.ProtobufEvents;
-import org.matsim.core.events.LastEventOfIteration;
-import org.matsim.core.events.LastEventOfSimStep;
+import org.matsim.core.controler.events.AfterMobsimEvent;
+import org.matsim.core.controler.listener.AfterMobsimListener;
 import org.matsim.core.events.handler.BasicEventHandler;
 
-public class BufferedProtocolBufferSender implements BasicEventHandler {
+public class BufferedProtocolBufferSender implements BasicEventHandler, AfterMobsimListener {
     private final int bufferSize;
-    private final Listener listener;
+    private final Listener[] listeners;
     private final EventBufferOuterClass.EventBuffer.Builder bufferBuilder =
             EventBufferOuterClass.EventBuffer.newBuilder();
 
-    public BufferedProtocolBufferSender(int bufferSize, Listener listener) {
+    public BufferedProtocolBufferSender(int bufferSize, Listener... listener) {
         // TODO add configuration of what events to forward. This should be resolved on Python side
         // and passed here as an argument
         this.bufferSize = bufferSize;
-        this.listener = listener;
+        this.listeners = listener;
     }
 
     @Override
@@ -26,19 +26,13 @@ public class BufferedProtocolBufferSender implements BasicEventHandler {
         if (bufferBuilder.getEventCount() > 0) {
             throw new IllegalStateException("buffer was not emptied at end of simulation: "+bufferBuilder.getEventList());
         }
-        listener.reset(iteration);
+        for (Listener listener : listeners) {
+            listener.reset(iteration);
+        }
     }
 
     @Override
     public void handleEvent(Event event) {
-        if (event instanceof LastEventOfSimStep) {
-            return;
-        }
-        if (event instanceof LastEventOfIteration) {
-            flush();
-            return;
-        }
-
         final ProtobufEvents.Event protoEvent = Event2ProtoEvent.getProtoEvent(event);
         bufferBuilder.addEvent(protoEvent);
 
@@ -47,9 +41,17 @@ public class BufferedProtocolBufferSender implements BasicEventHandler {
         }
     }
 
-    private void flush() {
-        listener.handleEventBuffer(bufferBuilder.build().toByteArray());
+    public void flush() {
+        byte[] message = bufferBuilder.build().toByteArray();
+        for (Listener listener : listeners) {
+            listener.handleEventBuffer(message);
+        }
         bufferBuilder.clear();
+    }
+
+    @Override
+    public void notifyAfterMobsim(AfterMobsimEvent event) {
+        flush();
     }
 
     public interface Listener {
