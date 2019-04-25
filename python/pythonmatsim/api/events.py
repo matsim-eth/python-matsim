@@ -32,7 +32,12 @@ class EventType:
 
 
 class EventListener:
-    def __init__(self):
+    def _method_for_type(self, event_type):
+        if not hasattr(self, '_method_per_type'):
+            self._create_method_per_type()
+        return self._method_per_type[event_type]
+
+    def _create_method_per_type(self):
         self._method_per_type = defaultdict(set)
         for name, val in inspect.getmembers(self, predicate=inspect.ismethod):
             if hasattr(val, 'listened_events'):
@@ -40,7 +45,7 @@ class EventListener:
                     self._method_per_type[type].add(val)
 
     def _handle_typed_event(self, event_type, event):
-        for method in self._method_per_type[event_type]:
+        for method in self._method_for_type(event_type):
             method(event)
 
 
