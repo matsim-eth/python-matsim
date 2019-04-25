@@ -89,6 +89,7 @@
 						<configuration>
                             <addProtoSources>all</addProtoSources>
                             <includeMavenTypes>direct</includeMavenTypes>
+                            <compileMavenTypes>direct</compileMavenTypes>
 							<protocArtifact>com.google.protobuf:protoc:3.0.0</protocArtifact>
                             <inputDirectories>
                                 <include>src/main/resources/</include>
@@ -97,11 +98,11 @@
                             <outputTargets>
                                 <outputTarget>
                                     <type>java</type>
-                                    <outputDirectory>target/generated-sources/</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/generated-sources/</outputDirectory>
                                 </outputTarget>
                                 <outputTarget>
                                     <type>python</type>
-                                    <outputDirectory>target/python</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/python</outputDirectory>
                                 </outputTarget>
                             </outputTargets>
 
