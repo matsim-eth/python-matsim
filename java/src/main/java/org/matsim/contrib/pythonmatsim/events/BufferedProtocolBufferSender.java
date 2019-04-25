@@ -24,7 +24,7 @@ public class BufferedProtocolBufferSender implements BasicEventHandler {
     @Override
     public void reset(int iteration) {
         if (bufferBuilder.getEventCount() > 0) {
-            throw new IllegalStateException("buffer was not emptied at end of simulation");
+            throw new IllegalStateException("buffer was not emptied at end of simulation: "+bufferBuilder.getEventList());
         }
         listener.reset(iteration);
     }

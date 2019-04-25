@@ -1,8 +1,9 @@
 import jpype as jp
 
 from collections import defaultdict
+import inspect
 
-from org.matsim.contrib.pythonmatsim.protobuf.EventBuffer_pb2 import EventBuffer
+from EventBuffer_pb2 import EventBuffer
 
 # this assumes the JVM is started with the correct classpath
 
@@ -33,8 +34,8 @@ class EventType:
 class EventListener:
     def __init__(self):
         self._method_per_type = defaultdict(set)
-        for name, val in self.__dict__.iteritems():
-            if val.listened_events:
+        for name, val in inspect.getmembers(self, predicate=inspect.ismethod):
+            if hasattr(val, 'listened_events'):
                 for type in val.listened_events:
                     self._method_per_type[type].add(val)
 
@@ -75,9 +76,9 @@ def create_buffered_event_handler(handler, buffer_size):
             buffer = EventBuffer()
             buffer.ParseFromString(message[:])
 
-            for event in buffer.events:
+            for event in buffer.event:
                 event_type = event.WhichOneof("event_type")
-                handler._handle_typed_event(event_type, event.getattr(event, event_type))
+                handler._handle_typed_event(event_type, getattr(event, event_type))
 
-    impl = jp.JProxy("org.matsim.contrib.pythonmatsim.events.BufferedProtocolBufferSender.Listener", inst=ProtobufHandler())
+    impl = jp.JProxy("org.matsim.contrib.pythonmatsim.events.BufferedProtocolBufferSender$Listener", inst=ProtobufHandler())
     return BufferedProtocolBufferSender(buffer_size, impl)
