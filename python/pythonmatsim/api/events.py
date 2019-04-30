@@ -1,3 +1,4 @@
+import logging
 import jpype as jp
 
 from collections import defaultdict
@@ -11,6 +12,8 @@ _org = jp.JPackage('org')
 
 
 BufferedProtocolBufferSender = _org.matsim.contrib.pythonmatsim.events.BufferedProtocolBufferSender
+
+logger = logging.getLogger(__name__)
 
 
 class EventType:
@@ -38,11 +41,13 @@ class EventListener:
         return self._method_per_type[event_type]
 
     def _create_method_per_type(self):
+        logger.info('Constructing listener list')
         self._method_per_type = defaultdict(set)
         for name, val in inspect.getmembers(self, predicate=inspect.ismethod):
             if hasattr(val, 'listened_events'):
                 for type in val.listened_events:
                     self._method_per_type[type].add(val)
+                logger.info('Method {} listens to the following event types: {}'.format(name, val.listened_events))
 
     def _handle_typed_event(self, event_type, event):
         for method in self._method_for_type(event_type):
