@@ -1,23 +1,26 @@
 import xml.etree.ElementTree as et
 import tempfile
 import os
-import shutil
 import subprocess
 import atexit
 import signal
 import jpype
+import logging
+import pkg_resources
+
+_logger = logging.getLogger(__name__)
 
 class JvmConfig:
     def __init__(self):
-        self._matsim_version = '11.0'
-        self._protobuf_version = '12.0-SNAPSHOT'
+        self._matsim_version = '12.0-SNAPSHOT'
 
         self._dependencies = []
+        self._repositories = []
 
     def add_dependency(self,
                         artifact_id: str,
-                        version: str,
-                        group_id: str='org.matsim.contrib',
+                        version: str = '${matsim.version}',
+                        group_id: str = 'org.matsim.contrib',
                         ):
         dependency = et.Element('dependency')
         et.SubElement('groupId', dependency).text = group_id
@@ -25,47 +28,63 @@ class JvmConfig:
         et.SubElement('version', dependency).text = version
 
         self._dependencies.append('')
-        for line in et.tostringlist(dependency):
+        for line in et.tostringlist(dependency, encoding="unicode"):
             self._dependencies.append(line)
+
+    def add_repository(self,
+            id: str,
+            url: str,
+            ):
+        repository = et.Element('repository')
+        et.SubElement('id', repository).text = id
+        et.SubElement('url', repository).text = url
+
+        self._repositories.append('')
+        for line in et.tostringlist(repository, encoding="unicode" ):
+            self._repositories.append(line)
 
     def _generate_properties(self):
         properties = et.Element('properties')
 
         et.SubElement(properties, 'matsim.version').text = self._matsim_version
-        et.SubElement(properties, 'matsim.protobuf.version').text = self._protobuf_version
 
-        return et.tostringlist(properties)
+        return et.tostringlist(properties, encoding="unicode" )
 
     def _generate_full_pom(self, pom_file):
-        with open('maven/pom_template.xml', 'r') as template:
+        # TODO This might not work with zipped distribution
+        # could not get resource_stream nor resource_string to work...
+        with open(pkg_resources.resource_filename('maven', 'pom_template.xml'), 'r') as template:
             with open(pom_file, 'w') as out:
-                lines = [template.readline()]
+                for template_line in template:
+                    lines = [template_line]
 
-                if lines.endswith('<!-- PROPERTIES HERE -->'):
-                    lines = self._generate_properties()
-                elif lines.endswith('<!-- ADDITIONAL DEPENDENCIES HERE -->'):
-                    lines = self._dependencies
+                    if '<!-- PROPERTIES HERE -->' in template_line:
+                        lines = self._generate_properties()
+                    elif '<!-- ADDITIONAL DEPENDENCIES HERE -->' in template_line:
+                        lines = self._dependencies
+                    elif '<!-- ADDITIONAL REPOSITORIES HERE -->' in template_line:
+                        lines = self._repositories
 
-                out.writelines(lines)
+                    out.writelines(lines)
 
     def build_and_start_jvm(self, jvm_path=jpype.get_default_jvm_path()):
         temp_dir = tempfile.TemporaryDirectory()
+        _logger.debug('generating classpath in {}'.format(temp_dir.name))
 
         # Only delete temp directory on system exit.
         # The JVM can only be started once per session by JPype due to limitation of JNI
-        _register_exit_handler(temp_dir.close)
+        _register_exit_handler(temp_dir.cleanup)
 
         pom_path = os.path.join(temp_dir.name, 'pom.xml')
 
         self._generate_full_pom(pom_path)
-        maven_completion = subprocess.run('mvn', '-DskipTests=true', 'assembly:assembly',
-                                          cwd=temp_dir,
-                                          text=True)
+        maven_completion = subprocess.run(['mvn', '-DskipTests=true', 'assembly:assembly'],
+                                          cwd=temp_dir.name)
 
         maven_completion.check_returncode()
 
         jpype.addClassPath(os.path.join(temp_dir.name, 'target', 'python-matsim-instance-jar-with-dependencies.jar'))
-        jpype.startJVM(jvm_path, jpype.getClassPath())
+        jpype.startJVM(jvm_path, "-Djava.class.path=%s" % jpype.getClassPath())
 
 
 def _register_exit_handler(f, *args, **kwargs):
@@ -80,4 +99,3 @@ def _register_exit_handler(f, *args, **kwargs):
     atexit.register(handler)
     signal.signal(signal.SIGTERM, handler)
     signal.signal(signal.SIGINT, handler)
-    signal.signal(signal.SIGKILL, handler)

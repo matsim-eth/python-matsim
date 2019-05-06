@@ -1,9 +1,10 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='pythonmatsim',
     version='1.0-SNAPSHOT',
-    packages=['pythonmatsim'],
+    packages=['pythonmatsim', 'maven'],
+    include_package_data=True,
     url='',
     license='GNU GPL 3.0',
     author='Thibaut Dubernet',

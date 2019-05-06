@@ -30,47 +30,16 @@
             <url>http://oss.jfrog.org/libs-snapshot</url>
         </repository>
 
-        <!-- additional repositories here -->
+        <!-- ADDITIONAL REPOSITORIES HERE -->
     </repositories>
 
     <dependencies>
         <dependency>
             <!-- This is the matsim "core": -->
-            <groupId>org.matsim</groupId>
-            <artifactId>matsim</artifactId>
-            <version>${matsim.version}</version>
-        </dependency>
-
-        <dependency>
-            <!-- Include the JUnit testing library.  Not transitive. -->
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <!--MATSim test infrastructure.  Not transitive.-->
-            <groupId>org.matsim</groupId>
-            <artifactId>matsim</artifactId>
-            <type>test-jar</type>
-            <version>${matsim.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!--
-        <dependency>
             <groupId>org.matsim.contrib</groupId>
-            <artifactId>protobuf</artifactId>
-            <version>${matsim.protobuf.version}</version>
+            <artifactId>python-matsim</artifactId>
+            <version>${matsim.version}</version>
         </dependency>
-        -->
-
-        <dependency>
-			<groupId>com.google.protobuf</groupId>
-			<artifactId>protobuf-java</artifactId>
-			<version>3.0.0</version>
-		</dependency>
 
         <!-- ADDITIONAL DEPENDENCIES HERE -->
     </dependencies>
