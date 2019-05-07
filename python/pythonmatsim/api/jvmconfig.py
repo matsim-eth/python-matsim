@@ -69,6 +69,10 @@ class JvmConfig:
                     out.writelines(lines)
 
     def build_and_start_jvm(self, jvm_path=jpype.get_default_jvm_path()):
+        # TODO: avoid to rebuild the same over and over.
+        # idea:
+        # - define some global cache directory ($HOME/.python-matsim or so)
+        # - store jars as <hash of pom.xml>.jar
         temp_dir = tempfile.TemporaryDirectory()
         _logger.debug('generating classpath in {}'.format(temp_dir.name))
 
