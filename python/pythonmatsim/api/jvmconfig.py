@@ -10,6 +10,7 @@ import pkg_resources
 
 _logger = logging.getLogger(__name__)
 
+
 class JvmConfig:
     def __init__(self):
         self._matsim_version = '12.0-SNAPSHOT'
@@ -18,10 +19,10 @@ class JvmConfig:
         self._repositories = []
 
     def add_dependency(self,
-                        artifact_id: str,
-                        version: str = '${matsim.version}',
-                        group_id: str = 'org.matsim.contrib',
-                        ):
+                       artifact_id: str,
+                       version: str = '${matsim.version}',
+                       group_id: str = 'org.matsim.contrib',
+                       ):
         dependency = et.Element('dependency')
         et.SubElement('groupId', dependency).text = group_id
         et.SubElement('artifactId', dependency).text = artifact_id
@@ -32,15 +33,15 @@ class JvmConfig:
             self._dependencies.append(line)
 
     def add_repository(self,
-            id: str,
-            url: str,
-            ):
+                       id: str,
+                       url: str,
+                       ):
         repository = et.Element('repository')
         et.SubElement('id', repository).text = id
         et.SubElement('url', repository).text = url
 
         self._repositories.append('')
-        for line in et.tostringlist(repository, encoding="unicode" ):
+        for line in et.tostringlist(repository, encoding="unicode"):
             self._repositories.append(line)
 
     def _generate_properties(self):
@@ -48,7 +49,7 @@ class JvmConfig:
 
         et.SubElement(properties, 'matsim.version').text = self._matsim_version
 
-        return et.tostringlist(properties, encoding="unicode" )
+        return et.tostringlist(properties, encoding="unicode")
 
     def _generate_full_pom(self, pom_file):
         # TODO This might not work with zipped distribution
@@ -98,9 +99,18 @@ def _register_exit_handler(f, *args, **kwargs):
     :param f:
     :return:
     """
+
     def handler():
         return f(*args, **kwargs)
 
     atexit.register(handler)
     signal.signal(signal.SIGTERM, handler)
     signal.signal(signal.SIGINT, handler)
+
+
+# Create a "global" instance of the config and provide convenience methods to manipulate it
+_config = JvmConfig()
+
+add_dependency = _config.add_dependency
+add_repository = _config.add_repository
+build_and_start_jvm = _config.build_and_start_jvm
