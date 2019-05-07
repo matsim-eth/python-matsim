@@ -83,7 +83,12 @@ class JvmConfig:
 
         maven_completion.check_returncode()
 
-        jpype.addClassPath(os.path.join(temp_dir.name, 'target', 'python-matsim-instance-jar-with-dependencies.jar'))
+        for jar in os.listdir(os.path.join(temp_dir.name, 'target')):
+            if jar.endswith('jar-with-dependencies.jar'):
+                full_path = os.path.join(temp_dir.name, 'target', jar)
+                _logger.debug('adding {} to classpath'.format(full_path))
+                jpype.addClassPath(full_path)
+
         jpype.startJVM(jvm_path, "-Djava.class.path=%s" % jpype.getClassPath())
 
 
