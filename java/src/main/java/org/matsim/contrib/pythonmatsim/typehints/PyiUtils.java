@@ -45,9 +45,9 @@ public class PyiUtils {
                 try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
                     writeImports(writer, info.getImportedPackages());
 
-                    for (Class<?> classTypeInfo : info.getClasses()) {
+                    for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
                         log.debug("generate class "+classTypeInfo);
-                        writeClassHints(writer, classTypeInfo);
+                        writeClassHints("", writer, classTypeInfo);
                     }
                 }
             }
@@ -72,7 +72,7 @@ public class PyiUtils {
                     writer.newLine();
                     writer.newLine();
 
-                    for (Class<?> classTypeInfo : info.getClasses()) {
+                    for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
                         log.debug("generate class "+classTypeInfo);
 
                         writePythonJpypeClass(writer, classTypeInfo);
@@ -85,15 +85,15 @@ public class PyiUtils {
         }
     }
 
-    private static void writePythonJpypeClass(BufferedWriter writer, Class<?> classTypeInfo) throws IOException {
-        final String pythonClassName = TypeHintsUtils.pythonClassName(classTypeInfo);
+    private static void writePythonJpypeClass(BufferedWriter writer, Packages.ClassInfo classTypeInfo) throws IOException {
+        final String pythonClassName = TypeHintsUtils.pythonClassName(classTypeInfo.getRootClass());
 
         if (pythonClassName.equals("Any")) {
             log.debug("ABORT class "+classTypeInfo);
             return;
         }
 
-        final String canonicalName = classTypeInfo.getCanonicalName();
+        final String canonicalName = classTypeInfo.getRootClass().getCanonicalName();
 
         if (canonicalName == null) {
             log.debug("ABORT class "+classTypeInfo);
@@ -101,31 +101,46 @@ public class PyiUtils {
         }
 
         writer.newLine();
+        writer.newLine();
         writer.write(pythonClassName);
         writer.write(" = jpype.JClass(\'");
-        writer.write(classTypeInfo.getName());
+        writer.write(classTypeInfo.getRootClass().getName());
         writer.write("\')");
+
+        for (Packages.ClassInfo member : classTypeInfo.getInnerClasses()) {
+            writePythonJpypeClass(writer, member);
+        }
     }
 
-    private static void writeClassHints(BufferedWriter writer, Class<?> classTypeInfo) throws IOException {
-        final String pythonName = TypeHintsUtils.pythonClassName(classTypeInfo);
+    private static void writeClassHints(String prefix, BufferedWriter writer, Packages.ClassInfo classTypeInfo) throws IOException {
+        final Class<?> rootClass = classTypeInfo.getRootClass();
+        String pythonName = TypeHintsUtils.pythonClassName(rootClass);
 
         // This indicates a non-public type (anonymous, local...)
         if (pythonName.equals("Any")) return;
 
-        writer.write("class "+pythonName+":");
+        if (rootClass.isMemberClass()) {
+            String parentName = TypeHintsUtils.pythonClassName(rootClass.getDeclaringClass());
+            pythonName = pythonName.substring(parentName.length() +  1);
+        }
+
+        writer.write(prefix +"class "+pythonName+":");
         writer.newLine();
 
+        for (Packages.ClassInfo member : classTypeInfo.getInnerClasses()) {
+            writeClassHints(prefix+'\t', writer, member);
+        }
+
         for (Method method : TypeHintsUtils.getMethods(classTypeInfo)) {
-            writeMethodHints(writer, method);
+            writeMethodHints(prefix + '\t', writer, method);
         }
 
         writer.newLine();
         writer.newLine();
     }
 
-    private static void writeMethodHints(BufferedWriter writer, Method method) throws IOException {
-        writer.write("\t"+"def "+ TypeHintsUtils.getJPypeName(method)+"(*args)");
+    private static void writeMethodHints(String prefix, BufferedWriter writer, Method method) throws IOException {
+        writer.write(prefix+"def "+ TypeHintsUtils.getJPypeName(method)+"(*args)");
         if (method.getReturnType() != null) {
             // no return type might be void or primitive types.
             // both cases are not of fantastic value in python, so ignore it for the moment.

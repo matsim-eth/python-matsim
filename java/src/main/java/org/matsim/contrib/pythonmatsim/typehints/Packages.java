@@ -42,26 +42,35 @@ class Packages {
 
     public class PackageInfo {
         private final String packageName;
-        private final Collection<Class<?>> classes = new LinkedHashSet<>();
+        private final Map<Class<?>, ClassInfo> rootClasses = new LinkedHashMap<>();
 
         public PackageInfo(String packageName) {
             this.packageName = packageName;
         }
 
         private void addClass(Class<?> classe) {
-            classes.add(classe);
+            try {
+                if (classe.isMemberClass() || classe.isLocalClass() || classe.isAnonymousClass()) {
+                    return;
+                }
+                rootClasses.put(classe, new ClassInfo(classe));
+            }
+            catch (NoClassDefFoundError e) {
+                // happens for classes that are not on classpath but in a signature
+                // Safe to ignore.
+            }
         }
 
         public String getPackageName() {
             return packageName;
         }
 
-        public Iterable<Class<?>> getClasses() {
-            return classes;
+        public Iterable<ClassInfo> getClasses() {
+            return rootClasses.values();
         }
 
         public Iterable<String> getImportedPackages() {
-            return classes.stream()
+            return rootClasses.values().stream()
                     .flatMap(c -> TypeHintsUtils.getMethods(c).stream())
                     .map(Method::getReturnType)
                     .flatMap(t -> TypeHintsUtils.getImportedTypes(t).stream())
@@ -70,6 +79,35 @@ class Packages {
                     .map(Package::getName)
                     //.map(Packages::pythonPackage)
                     .collect(Collectors.toSet());
+        }
+    }
+
+    public static class ClassInfo {
+        private final Class<?> classe;
+        private final Map<Class<?>, ClassInfo> innerClasses = new LinkedHashMap<>();
+
+        public ClassInfo(Class<?> classe) {
+            this.classe = classe;
+
+            for (Class<?> inner : classe.getDeclaredClasses()) {
+                innerClasses.put(inner, new ClassInfo(inner));
+            }
+        }
+
+        public Class<?> getRootClass() {
+            return classe;
+        }
+
+        public Collection<ClassInfo> getInnerClasses() {
+            return innerClasses.values();
+        }
+
+        @Override
+        public String toString() {
+            return "ClassInfo{" +
+                    "classe=" + classe +
+                    ", innerClasses=" + innerClasses +
+                    '}';
         }
     }
 

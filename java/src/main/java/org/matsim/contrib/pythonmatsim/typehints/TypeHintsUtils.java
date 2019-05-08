@@ -36,6 +36,22 @@ class TypeHintsUtils {
         return getImportedTypes(classe.getComponentType());
     }
 
+    public static Collection<Method> getMethods(Packages.ClassInfo classe) {
+        final Collection<Method> methods = new HashSet<>();
+
+        final Queue<Packages.ClassInfo> stack = Collections.asLifoQueue(new ArrayDeque<>());
+        stack.add(classe);
+
+        while (!stack.isEmpty()) {
+            final Packages.ClassInfo info = stack.remove();
+            stack.addAll(info.getInnerClasses());
+
+           methods.addAll(getMethods(info.getRootClass()));
+        }
+
+        return methods;
+    }
+
     public static Collection<Method> getMethods(Class<?> classe) {
         try {
             return Arrays.asList(classe.getMethods());
