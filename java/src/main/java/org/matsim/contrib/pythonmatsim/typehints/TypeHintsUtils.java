@@ -79,8 +79,7 @@ class TypeHintsUtils {
             String packageName = classe.getPackage().getName();
 
             return pythonQualifiedName.startsWith(packageName) ?
-                    // use $ as separator for inner classes (using . as in java is quite difficult)
-                    pythonQualifiedName.substring(packageName.length() + 1).replace('.', '$'):
+                    pythonQualifiedName.substring(packageName.length() + 1) :
                     // For case where "Any" or a JPype wrapper type
                     pythonQualifiedName;
         }

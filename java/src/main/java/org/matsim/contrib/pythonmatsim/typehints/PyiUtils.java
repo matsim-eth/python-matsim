@@ -34,7 +34,7 @@ public class PyiUtils {
 
     public static void generatePyiFiles(final String rootPath) {
         try {
-            log.info("generating python pyi files in "+rootPath);
+            log.info("generating python .pyi files in "+rootPath);
             final File rootDir = new File(rootPath);
 
             for (Packages.PackageInfo info : scan()) {
@@ -55,6 +55,56 @@ public class PyiUtils {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void generatePythonFiles(final String rootPath) {
+        try {
+            log.info("generating python .py files in "+rootPath);
+            final File rootDir = new File(rootPath);
+
+            for (Packages.PackageInfo info : scan()) {
+                File file = getPackageFile(rootDir, info, ".py");
+
+                log.info("generate "+file.getCanonicalPath());
+
+                try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
+                    writer.write("import jpype");
+                    writer.newLine();
+                    writer.newLine();
+
+                    for (Class<?> classTypeInfo : info.getClasses()) {
+                        log.debug("generate class "+classTypeInfo);
+
+                        writePythonJpypeClass(writer, classTypeInfo);
+                    }
+                }
+            }
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void writePythonJpypeClass(BufferedWriter writer, Class<?> classTypeInfo) throws IOException {
+        final String pythonClassName = TypeHintsUtils.pythonClassName(classTypeInfo);
+
+        if (pythonClassName.equals("Any")) {
+            log.debug("ABORT class "+classTypeInfo);
+            return;
+        }
+
+        final String canonicalName = classTypeInfo.getCanonicalName();
+
+        if (canonicalName == null) {
+            log.debug("ABORT class "+classTypeInfo);
+            return;
+        }
+
+        writer.newLine();
+        writer.write(pythonClassName);
+        writer.write(" = jpype.JClass(\'");
+        writer.write(classTypeInfo.getName());
+        writer.write("\')");
     }
 
     private static void writeClassHints(BufferedWriter writer, Class<?> classTypeInfo) throws IOException {

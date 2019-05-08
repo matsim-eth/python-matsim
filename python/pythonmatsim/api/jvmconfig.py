@@ -104,7 +104,9 @@ class JvmConfig:
         # - generate python type-hinted classes
         # - store them next to jar
         # - put them on sys.path
-        jpype.JClass('org.matsim.contrib.pythonmatsim.typehints.PyiUtils').generatePyiFiles(temp_dir.name)
+        PyiUtils = jpype.JClass('org.matsim.contrib.pythonmatsim.typehints.PyiUtils')
+        PyiUtils.generatePythonFiles(temp_dir.name)
+        PyiUtils.generatePyiFiles(temp_dir.name)
         sys.path.append(temp_dir.name)
 
         _logger.debug('done generating classpath')
