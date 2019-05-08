@@ -7,6 +7,7 @@ import signal
 import jpype
 import logging
 import pkg_resources
+import sys
 
 _logger = logging.getLogger(__name__)
 
@@ -72,7 +73,10 @@ class JvmConfig:
         # TODO: avoid to rebuild the same over and over.
         # idea:
         # - define some global cache directory ($HOME/.python-matsim or so)
-        # - store jars as <hash of pom.xml>.jar
+        # - store jars as <hash of pom.xml>/python-matsim.jar
+        #
+        # Could also still be a temp file, but not sure they get cleaned up regularly by all OSes...
+        # Also need to handle failures or updated snapshots...
         temp_dir = tempfile.TemporaryDirectory()
         _logger.debug('generating classpath in {}'.format(temp_dir.name))
 
@@ -96,6 +100,14 @@ class JvmConfig:
 
         jpype.startJVM(jvm_path, "-Djava.class.path=%s" % jpype.getClassPath())
 
+        # TODO: generate pxi files for all classes on classpath. Needs to be done after build
+        # - generate python type-hinted classes
+        # - store them next to jar
+        # - put them on sys.path
+        jpype.JClass('org.matsim.contrib.pythonmatsim.typehints.PyiUtils').generatePyiFiles(temp_dir.name)
+        sys.path.append(temp_dir.name)
+
+        _logger.debug('done generating classpath')
 
 def _register_exit_handler(f, *args, **kwargs):
     """

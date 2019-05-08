@@ -3,7 +3,7 @@
 all: maven python
 
 maven:
-	cd java/ && mvn assembly:assembly && mvn install -DskipTests=true
+	cd java/ && mvn install -DskipTests=true
 
 python_pbf: maven
 	cp -v java/target/generated-sources/python/*_pb2.py python/
