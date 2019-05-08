@@ -46,6 +46,7 @@ public class PyiUtils {
                     writeImports(writer, info.getImportedPackages());
 
                     for (Class<?> classTypeInfo : info.getClasses()) {
+                        log.debug("generate class "+classTypeInfo);
                         writeClassHints(writer, classTypeInfo);
                     }
                 }
@@ -57,9 +58,12 @@ public class PyiUtils {
     }
 
     private static void writeClassHints(BufferedWriter writer, Class<?> classTypeInfo) throws IOException {
-        writer.write("class ");
-        writer.write(TypeHintsUtils.pythonClassName(classTypeInfo));
-        writer.write("():");
+        final String pythonName = TypeHintsUtils.pythonClassName(classTypeInfo);
+
+        // This indicates a non-public type (anonymous, local...)
+        if (pythonName.equals("Any")) return;
+
+        writer.write("class "+pythonName+":");
         writer.newLine();
 
         for (Method method : TypeHintsUtils.getMethods(classTypeInfo)) {

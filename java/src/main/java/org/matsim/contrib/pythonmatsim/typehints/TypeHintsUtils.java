@@ -1,34 +1,34 @@
 package org.matsim.contrib.pythonmatsim.typehints;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 
-public class TypeHintsUtils {
-    static final Collection<Class<?>> PRIMITIVE_TYPES =
-            Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList(
-                    int.class,
-                    short.class,
-                    boolean.class,
-                    char.class,
-                    byte.class,
-                    long.class,
-                    float.class,
-                    double.class,
-                    void.class,
-                    // Those definitely need to be explicitly included
-                    int[].class,
-                    short[].class,
-                    boolean[].class,
-                    char[].class,
-                    byte[].class,
-                    long[].class,
-                    float[].class,
-                    double[].class
-            )));
+class TypeHintsUtils {
+
+
+    private static final Map<Class<?>, String> PRIMITIVE_TYPE_NAMES = new HashMap<>();
+    static {
+        PRIMITIVE_TYPE_NAMES.put(int.class, "int");
+        PRIMITIVE_TYPE_NAMES.put(short.class, "int");
+        PRIMITIVE_TYPE_NAMES.put(boolean.class, "int");
+        PRIMITIVE_TYPE_NAMES.put(char.class, "string");
+        PRIMITIVE_TYPE_NAMES.put(byte.class, "JByte");
+        PRIMITIVE_TYPE_NAMES.put(long.class, "long");
+        PRIMITIVE_TYPE_NAMES.put(float.class, "float");
+        PRIMITIVE_TYPE_NAMES.put(double.class, "float");
+        PRIMITIVE_TYPE_NAMES.put(void.class, "None");
+
+        PRIMITIVE_TYPE_NAMES.put(int[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(short[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(boolean[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(char[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(byte[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(long[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(float[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(double[].class, "JArray");
+    }
+
+    static final Collection<Class<?>> PRIMITIVE_TYPES = Collections.unmodifiableSet(PRIMITIVE_TYPE_NAMES.keySet());
 
     public static Collection<Class<?>> getImportedTypes(Class<?> classe) {
         // TODO: look at generics as well
@@ -58,16 +58,39 @@ public class TypeHintsUtils {
     }
 
     static String pythonQualifiedClassName(Class<?> classe) {
-       return classe.getCanonicalName();
-    }
-
-    static String pythonClassName(Class<?> classe) {
+        if (PRIMITIVE_TYPES.contains(classe)) return primitivePythonClassName(classe);
         try {
-            return classe.getSimpleName();
+
+            String canonicalName = classe.getCanonicalName();
+            // local or anonymous classes do not have a canonical name, but we do not care about them.
+            if (canonicalName == null) return "Any";
+
+            return canonicalName;
         }
         catch (NoClassDefFoundError e) {
             return "Any";
         }
+    }
+
+    static String pythonClassName(Class<?> classe) {
+        try {
+            String pythonQualifiedName = pythonQualifiedClassName(classe);
+
+            String packageName = classe.getPackage().getName();
+
+            return pythonQualifiedName.startsWith(packageName) ?
+                    // use $ as separator for inner classes (using . as in java is quite difficult)
+                    pythonQualifiedName.substring(packageName.length() + 1).replace('.', '$'):
+                    // For case where "Any" or a JPype wrapper type
+                    pythonQualifiedName;
+        }
+        catch (NoClassDefFoundError e) {
+            return "Any";
+        }
+    }
+
+    private static String primitivePythonClassName(Class<?> classe) {
+        return PRIMITIVE_TYPE_NAMES.get(classe);
     }
 
     static String getJPypeName(Method method) {
