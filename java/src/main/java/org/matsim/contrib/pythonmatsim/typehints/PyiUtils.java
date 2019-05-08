@@ -11,6 +11,7 @@ import org.reflections.util.ConfigurationBuilder;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 public class PyiUtils {
     private static final Logger log = Logger.getLogger(PyiUtils.class);
@@ -44,7 +45,7 @@ public class PyiUtils {
                 try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
                     writeImports(writer, info.getImportedPackages());
 
-                    for (Packages.ClassTypeInfo classTypeInfo : info.getClasses()) {
+                    for (Class<?> classTypeInfo : info.getClasses()) {
                         writeClassHints(writer, classTypeInfo);
                     }
                 }
@@ -55,13 +56,13 @@ public class PyiUtils {
         }
     }
 
-    private static void writeClassHints(BufferedWriter writer, Packages.ClassTypeInfo classTypeInfo) throws IOException {
+    private static void writeClassHints(BufferedWriter writer, Class<?> classTypeInfo) throws IOException {
         writer.write("class ");
-        writer.write(classTypeInfo.getClassName());
+        writer.write(TypeHintsUtils.pythonClassName(classTypeInfo));
         writer.write("():");
         writer.newLine();
 
-        for (Packages.MethodTypeInfo method : classTypeInfo.getMethods()) {
+        for (Method method : TypeHintsUtils.getMethods(classTypeInfo)) {
             writeMethodHints(writer, method);
         }
 
@@ -69,20 +70,15 @@ public class PyiUtils {
         writer.newLine();
     }
 
-    private static void writeMethodHints(BufferedWriter writer, Packages.MethodTypeInfo method) throws IOException {
-        writer.write("\t"+"def "+getJPypeName(method)+"(*args)");
+    private static void writeMethodHints(BufferedWriter writer, Method method) throws IOException {
+        writer.write("\t"+"def "+ TypeHintsUtils.getJPypeName(method)+"(*args)");
         if (method.getReturnType() != null) {
             // no return type might be void or primitive types.
             // both cases are not of fantastic value in python, so ignore it for the moment.
-            writer.write(" -> " + method.getReturnType().getPackage() + "." + method.getReturnType().getClassName());
+            writer.write(" -> " + TypeHintsUtils.pythonQualifiedClassName(method.getReturnType()));
         }
         writer.write(": ...");
         writer.newLine();
-    }
-
-    private static String getJPypeName(Packages.MethodTypeInfo method) {
-        // TODO
-        return method.getMethodName();
     }
 
 
