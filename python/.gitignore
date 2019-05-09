@@ -1,2 +1,3 @@
 venv/
 *_pb2.py
+generated-code/

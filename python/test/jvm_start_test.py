@@ -1,6 +1,6 @@
 import unittest
 import jpype
-import pythonmatsim.api.jvmconfig as jc
+import buildutils.codegeneration as jc
 
 
 class JvmStartupTest(unittest.TestCase):
@@ -11,3 +11,5 @@ class JvmStartupTest(unittest.TestCase):
             print(exception.message())
             print(exception.stacktrace())
             self.fail()
+
+
