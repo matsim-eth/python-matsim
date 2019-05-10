@@ -4,12 +4,10 @@ import os
 import subprocess
 import atexit
 import signal
-from typing import List, Tuple
 
 import jpype
 import logging
 import pkg_resources
-from setuptools import Command
 
 _logger = logging.getLogger(__name__)
 
@@ -125,36 +123,3 @@ add_repository = _config.add_repository
 build_and_start_jvm = _config.build_and_start_jvm
 
 
-class JavaWrapperCodeGeneration(Command):
-    description = 'generate Python code wrapping Java code'
-    user_options = [
-        ('additional-repositories=', 'r', 'semicolon-separated (;) additional buildutils repositories in format id:url'),
-        ('additional-dependencies=', 'd', 'semicolon-separated (;) additional buildutils dependencies in format group_id:artifact_id:version')
-    ]
-
-    def initialize_options(self):
-        """Set default values for options."""
-        # Each user option must be listed here with their default value.
-        self.additional_repositories = ''
-        self.additional_dependencies = ''
-
-    def finalize_options(self):
-        self._dependencies = self._explode_option_list(self.additional_dependencies)
-        self._repositories = self._explode_option_list(self.additional_repositories)
-
-    def _explode_option_list(self, option: str) -> List[Tuple[str]]:
-        if len(option) == 0:
-            return []
-
-        repos = option.split(';')
-        return [tuple(repo.split(':')) for repo in repos]
-
-    def run(self):
-        for id, url in self._repositories:
-            add_repository(id=id, url=url)
-
-        for group_id, artifact_id, version in self._dependencies:
-            # TODO: allow infered group_id and version
-            add_dependency(group_id=group_id, artifact_id=artifact_id, version=version)
-
-        build_and_start_jvm(os.path.abspath('generated-code/'))
