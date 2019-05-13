@@ -96,8 +96,7 @@ class JvmConfig:
         # - store them next to jar
         # - put them on sys.path
         PyiUtils = jpype.JClass('org.matsim.contrib.pythonmatsim.typehints.PyiUtils')
-        PyiUtils.generatePythonFiles(code_dir)
-        PyiUtils.generatePyiFiles(code_dir)
+        PyiUtils.generatePythonWrappers(code_dir)
 
         _logger.debug('done generating classpath')
 
@@ -166,4 +165,7 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
 
         # TODO find a better way to do this, in setup.py itself
         shutil.copytree('pythonmatsim', 'generatedcode/pythonmatsim')
+        for f in os.listdir('./'):
+            if f != 'setup.py' and f.endswith('.py'):
+                shutil.copy(f, 'generatedcode/')
 

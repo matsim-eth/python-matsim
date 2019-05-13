@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-pythonmatsim = {editable = true,path = "."}
 jpype1 = "*"
 
 [requires]

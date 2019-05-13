@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e50afabfa4892ba406635894bba6ec677d3eaee6a917cfd5e69f2121a27a8ee1"
+            "sha256": "4e22818887d7f6e801e67716d86bad26cb79b4853d6b9346bc35e937ab78908b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,10 +22,6 @@
             ],
             "index": "pypi",
             "version": "==0.6.3"
-        },
-        "pythonmatsim": {
-            "editable": true,
-            "path": "."
         }
     },
     "develop": {}

@@ -11,6 +11,7 @@ import org.reflections.util.ConfigurationBuilder;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
 
 public class PyiUtils {
@@ -32,56 +33,87 @@ public class PyiUtils {
         return packages.getPackages();
     }
 
-    public static void generatePyiFiles(final String rootPath) {
+    public static void generatePythonWrappers(final String rootPath) {
         try {
-            log.info("generating python .pyi files in "+rootPath);
-            final File rootDir = new File(rootPath);
-
-            for (Packages.PackageInfo info : scan()) {
-                File file = getPackageFile(rootDir, info, ".pyi");
-
-                log.info("generate "+file.getCanonicalPath());
-
-                try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
-                    writeImports(writer, info.getImportedPackages());
-
-                    for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
-                        log.debug("generate class "+classTypeInfo);
-                        writeClassHints("", writer, classTypeInfo);
-                    }
-                }
-            }
+            generatePyiFiles(rootPath);
+            generatePythonFiles(rootPath);
+            generateInitFiles(new File(rootPath));
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
-    public static void generatePythonFiles(final String rootPath) {
-        try {
-            log.info("generating python .py files in "+rootPath);
-            final File rootDir = new File(rootPath);
+    private static void generatePyiFiles(final String rootPath) throws IOException {
+        log.info("generating python .pyi files in "+rootPath);
+        final File rootDir = new File(rootPath);
 
-            for (Packages.PackageInfo info : scan()) {
-                File file = getPackageFile(rootDir, info, ".py");
+        for (Packages.PackageInfo info : scan()) {
+            File file = getPackageFile(rootDir, info, ".pyi");
 
-                log.info("generate "+file.getCanonicalPath());
+            log.info("generate "+file.getCanonicalPath());
 
-                try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
-                    writer.write("import jpype");
-                    writer.newLine();
-                    writer.newLine();
+            try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
+                writeHeader(writer);
 
-                    for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
-                        log.debug("generate class "+classTypeInfo);
+                writeImports(writer, info.getImportedPackages());
 
-                        writePythonJpypeClass(writer, classTypeInfo);
-                    }
+                for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
+                    log.debug("generate class "+classTypeInfo);
+                    writeClassHints("", writer, classTypeInfo);
                 }
             }
         }
-        catch (IOException e) {
-            throw new RuntimeException(e);
+    }
+
+    private static void generatePythonFiles(final String rootPath) throws IOException {
+        log.info("generating python .py files in "+rootPath);
+        final File rootDir = new File(rootPath);
+
+        for (Packages.PackageInfo info : scan()) {
+            File file = getPackageFile(rootDir, info, ".py");
+
+            log.info("generate "+file.getCanonicalPath());
+
+            try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
+                writeHeader(writer);
+
+                writer.write("import jpype");
+                writer.newLine();
+                writer.newLine();
+
+                for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
+                    log.debug("generate class "+classTypeInfo);
+
+                    writePythonJpypeClass(writer, classTypeInfo);
+                }
+            }
+        }
+    }
+
+    private static void generateInitFiles(final File rootDir) throws IOException {
+        log.info("generating python __init__.py files in "+rootDir.getPath());
+
+        writeInitFile(rootDir);
+
+        for (File directory : rootDir.listFiles(File::isDirectory)) {
+           generateInitFiles(directory);
+        }
+    }
+
+    private static void writeInitFile(File directory) throws IOException {
+        // This writes the __init__.py files, importing all defined modules.
+        // This seems to be the only way to emulate java-like package structure in python
+        // This has the downside that when importing parent1.parent2...child,
+        // all classes from parent packages are imported as well.
+        try (BufferedWriter writer = IOUtils.getBufferedWriter(directory.getCanonicalPath()+"/__init__.py")) {
+            writeHeader(writer);
+
+            for (File pythonFile : directory.listFiles(f -> f.getName().matches("_.*\\.py") && !f.getName().equals("__init__.py"))) {
+                final String pack = pythonFile.getName().substring(0, pythonFile.getName().length() - 3);
+                writer.newLine();
+                writer.write("from ."+pack+" import *");
+            }
         }
     }
 
@@ -162,9 +194,14 @@ public class PyiUtils {
 
     private static File getPackageFile(File rootDir, Packages.PackageInfo packageInfo, String extension) {
         try {
-            final String path = rootDir.getCanonicalPath()+"/"+
-                    packageInfo.getPackageName().replace('.', '/')+
-                    extension;
+            final String rootPath = rootDir.getCanonicalPath();
+            final String moduleName = packageInfo.getPackageName();
+
+            final int lastPoint = moduleName.lastIndexOf('.');
+            final String packageDir = moduleName.substring(0, lastPoint + 1).replace('.', '/');
+            final String moduleFileName = '_' + moduleName.substring(lastPoint + 1) + extension;
+
+            final String path = rootPath + '/' + packageDir + moduleFileName;
 
             final File file = new File(path);
             createParentPackageDirs(file, rootDir);
@@ -183,6 +220,16 @@ public class PyiUtils {
         }
 
         parent.mkdirs();
-        new File(parent, "__init__.py").createNewFile();
+        //new File(parent, "__init__.py").createNewFile();
+    }
+
+    private static void writeHeader(BufferedWriter writer) throws IOException {
+        writer.write("################################################################################");
+        writer.newLine();
+        writer.write("#          This file was automatically generated. Please do not edit.          #");
+        writer.newLine();
+        writer.write("################################################################################");
+        writer.newLine();
+        writer.newLine();
     }
 }
