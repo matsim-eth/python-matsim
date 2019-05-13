@@ -1,13 +1,18 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
+from distutils.command.build import build
 
-from buildutils.install import install
+from buildutils.codegeneration import JavaAdapterCodeGenerationCommand
+import shutil
+
+
+class MyBuild(build):
+    sub_commands = [('codegen', None)] + build.sub_commands
 
 setup(
     name='pythonmatsim',
     version='0.1a1',
-    package_dir={'pythonmatsim': './',
-                 '': 'generated-code/'},
-    packages=find_packages(exclude=('buildutils', 'test')),
+    package_dir={'': 'generatedcode/'},
+    packages=find_packages('generatedcode/', exclude=('buildutils', 'test')),
     include_package_data=True,
     url='',
     license='GNU GPL 3.0',
@@ -17,7 +22,10 @@ setup(
     install_requires=[
         'JPype1==0.6.3',
     ],
+    # Need type hints
+    python_requires='>=3.5',
     cmdclass={
-      'install': install
+      'codegen': JavaAdapterCodeGenerationCommand,
+      'build': MyBuild
     },
 )

@@ -167,8 +167,7 @@ public class PyiUtils {
                     extension;
 
             final File file = new File(path);
-            // TODO: need __init__.py?
-            file.getParentFile().mkdirs();
+            createParentPackageDirs(file, rootDir);
             return file;
         }
         catch (IOException e) {
@@ -176,4 +175,14 @@ public class PyiUtils {
         }
     }
 
+    private static void createParentPackageDirs(File file, File rootDir) throws IOException {
+        final File parent = file.getParentFile();
+
+        if (!file.equals(rootDir)) {
+            createParentPackageDirs(parent, rootDir);
+        }
+
+        parent.mkdirs();
+        new File(parent, "__init__.py").createNewFile();
+    }
 }
