@@ -2,7 +2,6 @@ from setuptools import setup, find_packages, Command
 from distutils.command.build import build
 
 from buildutils.codegeneration import JavaAdapterCodeGenerationCommand
-import shutil
 
 
 class MyBuild(build):
@@ -12,6 +11,7 @@ setup(
     name='pythonmatsim',
     version='0.1a1',
     package_dir={'': 'generatedcode/'},
+    # Note that this works only when code was already generated... Find a fix.
     packages=find_packages('generatedcode/', exclude=('buildutils', 'test')),
     include_package_data=True,
     url='',
@@ -19,6 +19,9 @@ setup(
     author='Thibaut Dubernet',
     author_email='thibaut.dubernet@ivt.baug.ethz.ch',
     description='A package to use MATSim from Python',
+    setup_requires=[
+        'JPype1==0.6.3',
+    ],
     install_requires=[
         'JPype1==0.6.3',
     ],

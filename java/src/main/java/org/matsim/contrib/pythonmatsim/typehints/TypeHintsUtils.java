@@ -73,7 +73,7 @@ class TypeHintsUtils {
         return fullName.substring(lastPoint + 1);
     }
 
-    static String pythonQualifiedClassName(Class<?> classe) {
+    static String pythonQualifiedClassName(String rootPackage, Class<?> classe) {
         if (PRIMITIVE_TYPES.contains(classe)) return primitivePythonClassName(classe);
         try {
 
@@ -81,7 +81,8 @@ class TypeHintsUtils {
             // local or anonymous classes do not have a canonical name, but we do not care about them.
             if (canonicalName == null) return "Any";
 
-            return canonicalName;
+            if (rootPackage == null || rootPackage.length() == 0) return canonicalName;
+            return rootPackage+"."+canonicalName;
         }
         catch (NoClassDefFoundError e) {
             return "Any";
@@ -90,7 +91,7 @@ class TypeHintsUtils {
 
     static String pythonClassName(Class<?> classe) {
         try {
-            String pythonQualifiedName = pythonQualifiedClassName(classe);
+            String pythonQualifiedName = pythonQualifiedClassName(null, classe);
 
             String packageName = classe.getPackage().getName();
 

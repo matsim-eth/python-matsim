@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as et
-import tempfile
 import os
 import subprocess
 import atexit
@@ -72,7 +71,8 @@ class JvmConfig:
 
                     out.writelines(lines)
 
-    def build_and_start_jvm(self, maven_dir: str, code_dir: str, jvm_path=jpype.get_default_jvm_path()):
+    def build_and_start_jvm(self, maven_dir: str, code_dir: str, root_package: str,
+                            jvm_path=jpype.get_default_jvm_path()):
         _logger.debug('generating classpath in {}'.format(maven_dir))
 
         pom_path = os.path.join(maven_dir, 'pom.xml')
@@ -96,7 +96,7 @@ class JvmConfig:
         # - store them next to jar
         # - put them on sys.path
         PyiUtils = jpype.JClass('org.matsim.contrib.pythonmatsim.typehints.PyiUtils')
-        PyiUtils.generatePythonWrappers(code_dir)
+        PyiUtils.generatePythonWrappers(code_dir, root_package)
 
         _logger.debug('done generating classpath')
 
@@ -161,7 +161,8 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
         if not os.path.exists('mavendir/'):
             os.mkdir('mavendir/')
         build_and_start_jvm(os.path.abspath('mavendir/'),
-                            os.path.abspath('generatedcode/'))
+                            os.path.abspath('generatedcode/'),
+                            'javawrappers')
 
         # TODO find a better way to do this, in setup.py itself
         shutil.copytree('pythonmatsim', 'generatedcode/pythonmatsim')

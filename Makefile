@@ -9,4 +9,4 @@ python_pbf: maven
 	cp -v java/target/generated-sources/python/*_pb2.py python/
 
 python: python_pbf
-	cd python && pipenv run python -v setup.py build egg_info install
+	cd python &&  venv/bin/python setup.py build egg_info install

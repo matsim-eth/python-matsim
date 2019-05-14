@@ -4,3 +4,6 @@ target/
 __pycache__
 .ipynb_checkpoints/
 output/
+venv
+.eggs
+*.pyc

@@ -33,10 +33,10 @@ public class PyiUtils {
         return packages.getPackages();
     }
 
-    public static void generatePythonWrappers(final String rootPath) {
+    public static void generatePythonWrappers(final String rootPath, String rootPackage) {
         try {
-            generatePyiFiles(rootPath);
-            generatePythonFiles(rootPath);
+            generatePyiFiles(rootPath, rootPackage);
+            generatePythonFiles(rootPath, rootPackage);
             generateInitFiles(new File(rootPath));
         }
         catch (IOException e) {
@@ -44,9 +44,10 @@ public class PyiUtils {
         }
     }
 
-    private static void generatePyiFiles(final String rootPath) throws IOException {
-        log.info("generating python .pyi files in "+rootPath);
-        final File rootDir = new File(rootPath);
+    private static void generatePyiFiles(final String rootPath, final String rootPackage) throws IOException {
+        final String packagePath = rootPath +"/"+ rootPackage;
+        log.info("generating python .pyi files in "+packagePath);
+        final File rootDir = new File(packagePath);
 
         for (Packages.PackageInfo info : scan()) {
             File file = getPackageFile(rootDir, info, ".pyi");
@@ -56,19 +57,20 @@ public class PyiUtils {
             try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
                 writeHeader(writer);
 
-                writeImports(writer, info.getImportedPackages());
+                writeImports(writer, rootPackage, info.getImportedPackages());
 
                 for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
                     log.debug("generate class "+classTypeInfo);
-                    writeClassHints("", writer, classTypeInfo);
+                    writeClassHints("", writer, rootPackage, classTypeInfo);
                 }
             }
         }
     }
 
-    private static void generatePythonFiles(final String rootPath) throws IOException {
-        log.info("generating python .py files in "+rootPath);
-        final File rootDir = new File(rootPath);
+    private static void generatePythonFiles(final String rootPath, String rootPackage) throws IOException {
+        final String packagePath = rootPath +"/"+ rootPackage;
+        log.info("generating python .py files in "+packagePath);
+        final File rootDir = new File(packagePath);
 
         for (Packages.PackageInfo info : scan()) {
             File file = getPackageFile(rootDir, info, ".py");
@@ -144,7 +146,7 @@ public class PyiUtils {
         }
     }
 
-    private static void writeClassHints(String prefix, BufferedWriter writer, Packages.ClassInfo classTypeInfo) throws IOException {
+    private static void writeClassHints(String prefix, BufferedWriter writer, String rootPackage, Packages.ClassInfo classTypeInfo) throws IOException {
         final Class<?> rootClass = classTypeInfo.getRootClass();
         String pythonName = TypeHintsUtils.pythonClassName(rootClass);
 
@@ -160,33 +162,32 @@ public class PyiUtils {
         writer.newLine();
 
         for (Packages.ClassInfo member : classTypeInfo.getInnerClasses()) {
-            writeClassHints(prefix+'\t', writer, member);
+            writeClassHints(prefix+'\t', writer, rootPackage, member);
         }
 
         for (Method method : TypeHintsUtils.getMethods(classTypeInfo)) {
-            writeMethodHints(prefix + '\t', writer, method);
+            writeMethodHints(prefix + '\t', writer, rootPackage, method);
         }
 
         writer.newLine();
         writer.newLine();
     }
 
-    private static void writeMethodHints(String prefix, BufferedWriter writer, Method method) throws IOException {
+    private static void writeMethodHints(String prefix, BufferedWriter writer, String rootPackage, Method method) throws IOException {
         writer.write(prefix+"def "+ TypeHintsUtils.getJPypeName(method)+"(*args)");
         if (method.getReturnType() != null) {
             // no return type might be void or primitive types.
             // both cases are not of fantastic value in python, so ignore it for the moment.
-            writer.write(" -> " + TypeHintsUtils.pythonQualifiedClassName(method.getReturnType()));
+            writer.write(" -> " + TypeHintsUtils.pythonQualifiedClassName(rootPackage, method.getReturnType()));
         }
         writer.write(": ...");
         writer.newLine();
     }
 
 
-    private static void writeImports(BufferedWriter writer, Iterable<String> importedPackages) throws IOException {
+    private static void writeImports(BufferedWriter writer, String rootPackage, Iterable<String> importedPackages) throws IOException {
         for (String packageName : importedPackages) {
-            writer.write("import ");
-            writer.write(packageName);
+            writer.write("import "+rootPackage+"."+packageName);
             writer.newLine();
         }
         writer.newLine();
