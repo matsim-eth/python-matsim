@@ -199,7 +199,7 @@ public class PyiUtils {
             final String moduleName = packageInfo.getPackageName();
 
             final int lastPoint = moduleName.lastIndexOf('.');
-            final String packageDir = moduleName.substring(0, lastPoint + 1).replace('.', '/');
+            final String packageDir = moduleName.replace('.', '/') +"/";
             final String moduleFileName = '_' + moduleName.substring(lastPoint + 1) + extension;
 
             final String path = rootPath + '/' + packageDir + moduleFileName;
