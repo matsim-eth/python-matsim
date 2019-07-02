@@ -30,6 +30,19 @@ class TypeHintsUtils {
 
     static final Collection<Class<?>> PRIMITIVE_TYPES = Collections.unmodifiableSet(PRIMITIVE_TYPE_NAMES.keySet());
 
+    // This is the list defined in JPype for renaming methods to avoid clashes.
+    // It should only be modified if bumping to another version of JPype that uses another list
+    private static final Set<String> PY_KEYWORDS =
+            new HashSet<>( Arrays.asList(
+                    "del", "for", "is", "raise",
+                    "assert", "elif", "from", "lambda", "return",
+                    "break", "else", "global", "not", "try",
+                    "class", "except", "if", "or", "while",
+                    "continue", "exec", "import", "pass", "yield",
+                    "def", "finally", "in", "print", "as", "None"
+            ));
+
+
     public static Collection<Class<?>> getImportedTypes(Class<?> classe) {
         // TODO: look at generics as well
         if (!classe.isArray()) return Collections.singleton(classe);
@@ -90,6 +103,8 @@ class TypeHintsUtils {
     }
 
     static String pythonClassName(Class<?> classe) {
+        // TODO handle case of a java class that would have a Python reserved keyword.
+        // rather unlikely
         try {
             String pythonQualifiedName = pythonQualifiedClassName(null, classe);
 
@@ -110,7 +125,7 @@ class TypeHintsUtils {
     }
 
     static String getJPypeName(Method method) {
-        // TODO
-        return method.getName();
+        final String rawName = method.getName();
+        return PY_KEYWORDS.contains(rawName) ? method.getName()+"_" : method.getName();
     }
 }
