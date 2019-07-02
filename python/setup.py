@@ -13,6 +13,10 @@ setup(
     package_dir={'': 'generatedcode/'},
     # Note that this works only when code was already generated... Find a fix.
     packages=find_packages('generatedcode/', exclude=('buildutils', 'test')),
+    package_data = {
+        #'buildutils': '*.xml',
+        '': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',
+    },
     include_package_data=True,
     url='',
     license='GNU GPL 3.0',
@@ -26,6 +30,7 @@ setup(
         'JPype1==0.6.3',
     ],
     # Need type hints
+    # Should also work with lower, but needs to be tested
     python_requires='>=3.5',
     cmdclass={
       'codegen': JavaAdapterCodeGenerationCommand,

@@ -3,6 +3,7 @@ package org.matsim.contrib.pythonmatsim.typehints;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,7 +51,9 @@ class Packages {
 
         private void addClass(Class<?> classe) {
             try {
-                if (classe.isMemberClass() || classe.isLocalClass() || classe.isAnonymousClass()) {
+                if (classe.isMemberClass() || classe.isLocalClass() || classe.isAnonymousClass() ||
+                        // only consider public classes
+                        !Modifier.isPublic(classe.getModifiers())) {
                     return;
                 }
                 rootClasses.put(classe, new ClassInfo(classe));

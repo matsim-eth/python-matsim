@@ -170,3 +170,9 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
             if f != 'setup.py' and f.endswith('.py'):
                 shutil.copy(f, 'generatedcode/')
 
+        os.mkdir('generatedcode/javaresources/')
+        open('generatedcode/javaresources/__init__.py', 'a').close()
+        for f in os.listdir('mavendir/target/'):
+            if f.endswith('jar-with-dependencies.jar'):
+                shutil.copy(os.path.join('mavendir', 'target', f), 'generatedcode/javaresources/')
+
