@@ -45,12 +45,13 @@ class TypeHintsUtils {
 
     public static Collection<Class<?>> getImportedTypes(Class<?> classe) {
         // TODO: look at generics as well
+        // TODO: handle java.xxx packages specially (apparently not found by Reflections, but provided by JPype)
         if (!classe.isArray()) return Collections.singleton(classe);
         return getImportedTypes(classe.getComponentType());
     }
 
-    public static Collection<Method> getMethods(Packages.ClassInfo classe) {
-        final Collection<Method> methods = new HashSet<>();
+    public static Map<String, Collection<Method>> getMethods(Packages.ClassInfo classe) {
+        final Map<String, Collection<Method>> methods = new HashMap<>();
 
         final Queue<Packages.ClassInfo> stack = Collections.asLifoQueue(new ArrayDeque<>());
         stack.add(classe);
@@ -59,7 +60,12 @@ class TypeHintsUtils {
             final Packages.ClassInfo info = stack.remove();
             stack.addAll(info.getInnerClasses());
 
-           methods.addAll(getMethods(info.getRootClass()));
+            for (Method method : getMethods(info.getRootClass())) {
+                methods.computeIfAbsent(
+                        method.getName(),
+                        k -> new HashSet<>()
+                ).add(method);
+            }
         }
 
         return methods;
@@ -105,6 +111,8 @@ class TypeHintsUtils {
     static String pythonClassName(Class<?> classe) {
         // TODO handle case of a java class that would have a Python reserved keyword.
         // rather unlikely
+
+        // TODO handle case of java arrays. Use a Union type allowing whatever JPype accepts for it
         try {
             String pythonQualifiedName = pythonQualifiedClassName(null, classe);
 
@@ -124,8 +132,7 @@ class TypeHintsUtils {
         return PRIMITIVE_TYPE_NAMES.get(classe);
     }
 
-    static String getJPypeName(Method method) {
-        final String rawName = method.getName();
-        return PY_KEYWORDS.contains(rawName) ? method.getName()+"_" : method.getName();
+    static String getJPypeName(String rawName) {
+        return PY_KEYWORDS.contains(rawName) ? rawName+"_" : rawName;
     }
 }

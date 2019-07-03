@@ -74,7 +74,8 @@ class Packages {
 
         public Iterable<String> getImportedPackages() {
             return rootClasses.values().stream()
-                    .flatMap(c -> TypeHintsUtils.getMethods(c).stream())
+                    .flatMap(c -> TypeHintsUtils.getMethods(c).values().stream())
+                    .flatMap(Collection::stream)
                     .map(Method::getReturnType)
                     .flatMap(t -> TypeHintsUtils.getImportedTypes(t).stream())
                     .filter(t -> !TypeHintsUtils.PRIMITIVE_TYPES.contains(t))

@@ -76,10 +76,18 @@
 		</dependency>
 
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.0-jre</version>
+        </dependency>
+
+        <!--
+        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>0.9.11</version>
         </dependency>
+        -->
     </dependencies>
 
     <build>
@@ -135,6 +143,7 @@
                     <compilerArguments>
                         <Xmaxwarns>4000</Xmaxwarns>
                         <Xmaxerrs>100</Xmaxerrs>
+                        <parameters/>
                     </compilerArguments>
                 </configuration>
             </plugin>

@@ -1,36 +1,47 @@
 package org.matsim.contrib.pythonmatsim.typehints;
 
+import com.google.common.reflect.ClassPath;
 import org.apache.log4j.Logger;
 import org.matsim.core.utils.io.IOUtils;
-import org.reflections.Configuration;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.*;
 
 public class PyiUtils {
     private static final Logger log = Logger.getLogger(PyiUtils.class);
 
     public static Iterable<Packages.PackageInfo> scan() {
-        final Configuration configuration =
-                new ConfigurationBuilder()
-                        .setScanners(new SubTypesScanner(false))
-                        .addUrls(ClasspathHelper.forJavaClassPath())
-                        .addClassLoaders(
-                                ClasspathHelper.contextClassLoader(),
-                                ClasspathHelper.staticClassLoader());
-        final Reflections reflections = new Reflections(configuration);
-        final Packages packages = new Packages();
+        final Collection<Class<?>> classes = new HashSet<>();
+        try {
+            for (ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                    loader != null;
+                    loader = loader.getParent()) {
+                addClasses(loader, classes);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
-        reflections.getSubTypesOf(Object.class).forEach(packages::addClass);
-
+        Packages packages = new Packages();
+        classes.forEach(packages::addClass);
         return packages.getPackages();
+    }
+
+    private static void addClasses(ClassLoader loader, Collection<Class<?>> classes) throws IOException {
+         for (ClassPath.ClassInfo c : ClassPath.from(loader).getAllClasses()) {
+            try {
+                classes.add(c.load());
+            }
+            catch (LinkageError e) {
+                log.warn("could not load class "+c.getName());
+            }
+        }
     }
 
     public static void generatePythonWrappers(final String rootPath, String rootPackage) {
@@ -58,6 +69,10 @@ public class PyiUtils {
                 writeHeader(writer);
 
                 writeImports(writer, rootPackage, info.getImportedPackages());
+
+                writer.write("from typing import overload");
+                writer.newLine();
+                writer.newLine();
 
                 for (Packages.ClassInfo classTypeInfo : info.getClasses()) {
                     log.debug("generate class "+classTypeInfo);
@@ -147,6 +162,7 @@ public class PyiUtils {
     }
 
     private static void writeClassHints(String prefix, BufferedWriter writer, String rootPackage, Packages.ClassInfo classTypeInfo) throws IOException {
+        // TODO see if it makes sense to translate javadocs to python docstrings
         final Class<?> rootClass = classTypeInfo.getRootClass();
         String pythonName = TypeHintsUtils.pythonClassName(rootClass);
 
@@ -161,29 +177,71 @@ public class PyiUtils {
         writer.write(prefix +"class "+pythonName+":");
         writer.newLine();
 
+        // TODO add typed constructors?
+
+        // TODO handle enums
+
         for (Packages.ClassInfo member : classTypeInfo.getInnerClasses()) {
             writeClassHints(prefix+'\t', writer, rootPackage, member);
         }
 
-        for (Method method : TypeHintsUtils.getMethods(classTypeInfo)) {
-            writeMethodHints(prefix + '\t', writer, rootPackage, method);
+        for (Map.Entry<String, Collection<Method>> method : TypeHintsUtils.getMethods(classTypeInfo).entrySet()) {
+            writeMethodHints(prefix + '\t', writer, rootPackage, method.getKey(), method.getValue());
         }
 
         writer.newLine();
         writer.newLine();
     }
 
-    private static void writeMethodHints(String prefix, BufferedWriter writer, String rootPackage, Method method) throws IOException {
-        writer.write(prefix+"def "+ TypeHintsUtils.getJPypeName(method)+"(*args)");
+    private static void writeMethodHints(String prefix, BufferedWriter writer, String rootPackage, String name, Collection<Method> methods) throws IOException {
+        String methodName = TypeHintsUtils.getJPypeName(name);
+
+        boolean overload = methods.size() > 1;
+
+        for (Method method : methods) {
+            if (overload) {
+                writer.write(prefix);
+                writer.write("@overload");
+                writer.newLine();
+            }
+            writeMethodHints(prefix, writer, rootPackage, methodName, method);
+        }
+    }
+
+    private static void writeMethodHints(String prefix,
+                                         BufferedWriter writer,
+                                         String rootPackage,
+                                         String name,
+                                         Method method) throws IOException {
+
+        writer.write(prefix + "def " + name + "(");
+        if (!Modifier.isStatic(method.getModifiers())) {
+            writer.write("self, ");
+        }
+
+        for (Parameter parameter : method.getParameters()) {
+            // TODO find how to get name reliably. Seems not to be possible if dependencies were not compiled with -parameters
+            // option, although IDEs do manage to get parameter names...
+            final String parameterName = parameter.isVarArgs() ? "*"+parameter.getName() : parameter.getName();
+
+            writer.write(
+                    parameterName+": "+
+                            TypeHintsUtils.pythonQualifiedClassName(rootPackage, parameter.getType())+
+                            // python allows trailing comas, so no need to handle last parameter specially
+                            ", ");
+        }
+
+        writer.write(")");
+
         if (method.getReturnType() != null) {
             // no return type might be void or primitive types.
             // both cases are not of fantastic value in python, so ignore it for the moment.
             writer.write(" -> " + TypeHintsUtils.pythonQualifiedClassName(rootPackage, method.getReturnType()));
         }
+
         writer.write(": ...");
         writer.newLine();
     }
-
 
     private static void writeImports(BufferedWriter writer, String rootPackage, Iterable<String> importedPackages) throws IOException {
         for (String packageName : importedPackages) {
