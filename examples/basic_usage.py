@@ -8,4 +8,4 @@ import javawrappers.org.matsim.core.controler as jcontroler
 # in PyCharm, such a long chain is possible with autocomplete all the way
 jconfig.ConfigUtils.createConfig().global_().setCoordinateSystem('epsg:1234')
 
-
+jconfig.ConfigUtils.loadConfig()

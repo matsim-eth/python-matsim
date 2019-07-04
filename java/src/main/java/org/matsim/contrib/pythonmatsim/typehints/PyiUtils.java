@@ -12,7 +12,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.net.JarURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class PyiUtils {
     private static final Logger log = Logger.getLogger(PyiUtils.class);
@@ -25,8 +31,11 @@ public class PyiUtils {
                     loader = loader.getParent()) {
                 addClasses(loader, classes);
             }
+            addBootstrapClasses(classes);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         Packages packages = new Packages();
@@ -43,6 +52,29 @@ public class PyiUtils {
             catch (LinkageError e) {
                 log.warn("could not load class "+c.getName());
             }
+        }
+    }
+
+    private static void addBootstrapClasses(Collection<Class<?>> classes) throws IOException, ClassNotFoundException {
+        // XXX See https://openjdk.java.net/jeps/220 for after Java 8
+        // get URL of rt.jar, where all java.* classes are (they are not on the classpath and need to be handled ad-hoc)
+        URL fileURL = ((JarURLConnection) ClassLoader.getSystemResource("java/lang/Class.class").openConnection())
+                .getJarFileURL();
+
+        JarFile file = ((JarURLConnection) ClassLoader.getSystemResource("java/lang/Class.class").openConnection())
+                .getJarFile();
+
+        URLClassLoader cl = URLClassLoader.newInstance(new URL[]{new URL("jar:"+fileURL.toString()+"!/")});
+
+        for (JarEntry entry : Collections.list(file.entries())) {
+            if (!entry.getName().endsWith(".class")) continue;
+            // Remove .class and pass from / to .
+            String className = entry.getName()
+                    .substring(0, entry.getName().length() - 6)
+                    .replace("/", ".");
+
+            Class classe = cl.loadClass(className);
+            classes.add(classe);
         }
     }
 
@@ -301,7 +333,6 @@ public class PyiUtils {
             writer.newLine();
         }
 
-        writer.write("from jpype import java");
         writer.newLine();
         writer.write("from typing import Union");
         writer.newLine();

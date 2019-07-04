@@ -100,7 +100,7 @@ class TypeHintsUtils {
             // local or anonymous classes do not have a canonical name, but we do not care about them.
             if (canonicalName == null) return "Any";
 
-            if (rootPackage == null || rootPackage.length() == 0 || canonicalName.startsWith("java.")) return canonicalName;
+            if (rootPackage == null || rootPackage.length() == 0) return canonicalName;
             return rootPackage+"."+canonicalName;
         }
         catch (NoClassDefFoundError e) {
