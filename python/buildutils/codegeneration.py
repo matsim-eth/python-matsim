@@ -96,7 +96,13 @@ class JvmConfig:
         # - store them next to jar
         # - put them on sys.path
         PyiUtils = jpype.JClass('org.matsim.contrib.pythonmatsim.typehints.PyiUtils')
-        PyiUtils.generatePythonWrappers(code_dir, root_package)
+
+        try:
+            PyiUtils.generatePythonWrappers(code_dir, root_package)
+        except jpype.JavaException as e:
+            print(e.message())
+            print(e.stacktrace())
+            raise e
 
         _logger.debug('done generating classpath')
 

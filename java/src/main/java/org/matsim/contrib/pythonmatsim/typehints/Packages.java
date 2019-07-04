@@ -4,8 +4,10 @@ import org.apache.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Aim of this class is to group classes per package, to allow easier generation of python files
@@ -76,13 +78,20 @@ class Packages {
             return rootClasses.values().stream()
                     .flatMap(c -> TypeHintsUtils.getMethods(c).values().stream())
                     .flatMap(Collection::stream)
-                    .map(Method::getReturnType)
+                    .flatMap(this::getTypes)
                     .flatMap(t -> TypeHintsUtils.getImportedTypes(t).stream())
                     .filter(t -> !TypeHintsUtils.PRIMITIVE_TYPES.contains(t))
                     .map(Class::getPackage)
                     .map(Package::getName)
                     //.map(Packages::pythonPackage)
                     .collect(Collectors.toSet());
+        }
+
+        private Stream<Class<?>> getTypes(Method method) {
+            Collection<Class<?>> list = new ArrayList<>();
+            list.add(method.getReturnType());
+            list.addAll(Arrays.asList(method.getParameterTypes()));
+            return list.stream();
         }
     }
 

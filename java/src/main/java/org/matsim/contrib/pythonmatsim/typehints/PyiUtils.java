@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -36,7 +37,8 @@ public class PyiUtils {
     private static void addClasses(ClassLoader loader, Collection<Class<?>> classes) throws IOException {
          for (ClassPath.ClassInfo c : ClassPath.from(loader).getAllClasses()) {
             try {
-                classes.add(c.load());
+                Class<?> loaded = c.load();
+                classes.add(loaded);
             }
             catch (LinkageError e) {
                 log.warn("could not load class "+c.getName());
@@ -177,9 +179,11 @@ public class PyiUtils {
         writer.write(prefix +"class "+pythonName+":");
         writer.newLine();
 
-        // TODO add typed constructors?
+        writeConstructorsHints(prefix + '\t', writer, rootPackage, rootClass);
 
-        // TODO handle enums
+        if (classTypeInfo.getRootClass().isEnum()) {
+            writeEnumHints(prefix + '\t', writer, rootPackage, classTypeInfo);
+        }
 
         for (Packages.ClassInfo member : classTypeInfo.getInnerClasses()) {
             writeClassHints(prefix+'\t', writer, rootPackage, member);
@@ -191,6 +195,54 @@ public class PyiUtils {
 
         writer.newLine();
         writer.newLine();
+    }
+
+    private static void writeEnumHints(String prefix, BufferedWriter writer, String rootPackage, Packages.ClassInfo classTypeInfo) throws IOException {
+        for (Object constant : classTypeInfo.getRootClass().getEnumConstants()) {
+            // not sure whether this is correct
+            writer.write(prefix);
+            writer.write(((Enum) constant).name()+": ");
+            writer.write(TypeHintsUtils.pythonClassName(classTypeInfo.getRootClass()));
+            writer.newLine();
+        }
+    }
+
+    private static void writeConstructorsHints(String prefix, BufferedWriter writer, String rootPackage, Class<?> classe) throws IOException {
+        Constructor<?>[] constructors = null;
+
+        try {
+            constructors = classe.getConstructors();
+        }
+        catch (NoClassDefFoundError e){
+            return;
+        }
+
+        boolean overload = constructors.length > 1;
+
+        for (Constructor<?> constructor : constructors) {
+            if (overload) {
+                writer.write(prefix);
+                writer.write("@overload");
+                writer.newLine();
+            }
+
+            writer.write(prefix + "def __init__(self, ");
+
+            for (Parameter parameter : constructor.getParameters()) {
+                // TODO find how to get name reliably. Seems not to be possible if dependencies were not compiled with -parameters
+                // option, although IDEs do manage to get parameter names...
+                final String parameterName = parameter.isVarArgs() ? "*"+parameter.getName() : parameter.getName();
+
+                writer.write(
+                        parameterName+": "+
+                                TypeHintsUtils.pythonQualifiedClassName(rootPackage, parameter.getType())+
+                                // python allows trailing comas, so no need to handle last parameter specially
+                                ", ");
+            }
+
+            writer.write("): ...");
+            writer.newLine();
+        }
     }
 
     private static void writeMethodHints(String prefix, BufferedWriter writer, String rootPackage, String name, Collection<Method> methods) throws IOException {
@@ -248,6 +300,12 @@ public class PyiUtils {
             writer.write("import "+rootPackage+"."+packageName);
             writer.newLine();
         }
+
+        writer.write("from jpype import java");
+        writer.newLine();
+        writer.write("from typing import Union");
+        writer.newLine();
+
         writer.newLine();
     }
 

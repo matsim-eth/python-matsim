@@ -8,24 +8,24 @@ class TypeHintsUtils {
 
     private static final Map<Class<?>, String> PRIMITIVE_TYPE_NAMES = new HashMap<>();
     static {
-        PRIMITIVE_TYPE_NAMES.put(int.class, "int");
-        PRIMITIVE_TYPE_NAMES.put(short.class, "int");
-        PRIMITIVE_TYPE_NAMES.put(boolean.class, "int");
-        PRIMITIVE_TYPE_NAMES.put(char.class, "string");
+        PRIMITIVE_TYPE_NAMES.put(int.class, "Union[int, JInt]");
+        PRIMITIVE_TYPE_NAMES.put(short.class, "Union[int, JShort]");
+        PRIMITIVE_TYPE_NAMES.put(boolean.class, "Union[int, JBoolean]");
+        PRIMITIVE_TYPE_NAMES.put(char.class, "Union[string, JString]");
         PRIMITIVE_TYPE_NAMES.put(byte.class, "JByte");
-        PRIMITIVE_TYPE_NAMES.put(long.class, "long");
-        PRIMITIVE_TYPE_NAMES.put(float.class, "float");
-        PRIMITIVE_TYPE_NAMES.put(double.class, "float");
+        PRIMITIVE_TYPE_NAMES.put(long.class, "Union[long, JLong]");
+        PRIMITIVE_TYPE_NAMES.put(float.class, "Union[float, JFloat]");
+        PRIMITIVE_TYPE_NAMES.put(double.class, "Union[float, JDouble]");
         PRIMITIVE_TYPE_NAMES.put(void.class, "None");
 
-        PRIMITIVE_TYPE_NAMES.put(int[].class, "JArray");
-        PRIMITIVE_TYPE_NAMES.put(short[].class, "JArray");
-        PRIMITIVE_TYPE_NAMES.put(boolean[].class, "JArray");
-        PRIMITIVE_TYPE_NAMES.put(char[].class, "JArray");
-        PRIMITIVE_TYPE_NAMES.put(byte[].class, "JArray");
-        PRIMITIVE_TYPE_NAMES.put(long[].class, "JArray");
-        PRIMITIVE_TYPE_NAMES.put(float[].class, "JArray");
-        PRIMITIVE_TYPE_NAMES.put(double[].class, "JArray");
+        PRIMITIVE_TYPE_NAMES.put(int[].class, "JArray(JInt, 1)");
+        PRIMITIVE_TYPE_NAMES.put(short[].class, "JArray(JShort, 1)");
+        PRIMITIVE_TYPE_NAMES.put(boolean[].class, "JArray(JBoolean, 1)");
+        PRIMITIVE_TYPE_NAMES.put(char[].class, "JArray(JChar, 1)");
+        PRIMITIVE_TYPE_NAMES.put(byte[].class, "JArray(JByte, 1)");
+        PRIMITIVE_TYPE_NAMES.put(long[].class, "JArray(JLong, 1)");
+        PRIMITIVE_TYPE_NAMES.put(float[].class, "JArray(JFloat, 1)");
+        PRIMITIVE_TYPE_NAMES.put(double[].class, "JArray(JDouble, 1)");
     }
 
     static final Collection<Class<?>> PRIMITIVE_TYPES = Collections.unmodifiableSet(PRIMITIVE_TYPE_NAMES.keySet());
@@ -100,7 +100,7 @@ class TypeHintsUtils {
             // local or anonymous classes do not have a canonical name, but we do not care about them.
             if (canonicalName == null) return "Any";
 
-            if (rootPackage == null || rootPackage.length() == 0) return canonicalName;
+            if (rootPackage == null || rootPackage.length() == 0 || canonicalName.startsWith("java.")) return canonicalName;
             return rootPackage+"."+canonicalName;
         }
         catch (NoClassDefFoundError e) {
