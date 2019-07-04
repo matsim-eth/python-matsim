@@ -1,2 +1,2 @@
--e git+https://github.com/jpype-project/jpype.git@3ce953ae7b35244077249ce650b9acd0a7010d17#egg=JPype1
+JPype1==0.7.0
 numpy==1.16.3

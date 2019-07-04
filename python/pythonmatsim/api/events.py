@@ -34,6 +34,14 @@ class EventType:
     genericEvent = 'genericEvent'
 
 
+def event_listener(classe):
+    """
+    Decorator to identify classes that can be
+    :param classe:
+    :return:
+    """
+    pass
+
 class EventListener:
     def _method_for_type(self, event_type):
         if not hasattr(self, '_method_per_type'):

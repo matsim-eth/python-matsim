@@ -27,7 +27,7 @@ setup(
         'JPype1==0.6.3',
     ],
     install_requires=[
-        'JPype1==0.6.3',
+        'JPype1==0.7.0',
         'protobuf==3.8.0',
     ],
     # Need type hints
