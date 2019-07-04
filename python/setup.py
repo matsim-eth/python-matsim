@@ -28,6 +28,7 @@ setup(
     ],
     install_requires=[
         'JPype1==0.6.3',
+        'protobuf==3.8.0',
     ],
     # Need type hints
     # Should also work with lower, but needs to be tested

@@ -1,6 +1,6 @@
 .PHONY: all maven python python_pbf
 
-all: maven python
+all: maven python examples
 
 maven:
 	cd java/ && mvn install -DskipTests=true
@@ -10,3 +10,6 @@ python_pbf: maven
 
 python: python_pbf
 	cd python &&  venv/bin/python setup.py build egg_info install
+
+examples: python
+	cd examples && venv/bin/pip install --upgrade -e ../python/ && venv/bin/pip freeze > requirements.txt
