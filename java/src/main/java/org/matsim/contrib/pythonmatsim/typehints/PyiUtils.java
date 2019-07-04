@@ -264,10 +264,13 @@ public class PyiUtils {
                 // TODO find how to get name reliably. Seems not to be possible if dependencies were not compiled with -parameters
                 // option, although IDEs do manage to get parameter names...
                 final String parameterName = parameter.isVarArgs() ? "*"+parameter.getName() : parameter.getName();
+                // varargs need to be handled explicitly, as the functionality exists in both languages but in a different way
+                final Class<?> parameterType = parameter.isVarArgs() ? parameter.getType().getComponentType() : parameter.getType();
+                final String pythonQualifiedClassName = TypeHintsUtils.pythonQualifiedClassName(rootPackage, parameterType);
 
                 writer.write(
                         parameterName+": "+
-                                TypeHintsUtils.pythonQualifiedClassName(rootPackage, parameter.getType())+
+                                pythonQualifiedClassName+
                                 // python allows trailing comas, so no need to handle last parameter specially
                                 ", ");
             }
@@ -307,10 +310,14 @@ public class PyiUtils {
             // TODO find how to get name reliably. Seems not to be possible if dependencies were not compiled with -parameters
             // option, although IDEs do manage to get parameter names...
             final String parameterName = parameter.isVarArgs() ? "*"+parameter.getName() : parameter.getName();
+            // varargs need to be handled explicitly, as the functionality exists in both languages but in a different way
+            final Class<?> parameterType = parameter.isVarArgs() ? parameter.getType().getComponentType() : parameter.getType();
+            final String pythonQualifiedClassName = TypeHintsUtils.pythonQualifiedClassName(rootPackage, parameterType);
+
 
             writer.write(
                     parameterName+": "+
-                            TypeHintsUtils.pythonQualifiedClassName(rootPackage, parameter.getType())+
+                            pythonQualifiedClassName+
                             // python allows trailing comas, so no need to handle last parameter specially
                             ", ");
         }
@@ -332,6 +339,10 @@ public class PyiUtils {
             writer.write("import "+rootPackage+"."+packageName);
             writer.newLine();
         }
+
+        // TODO import jpype wrapper types only?
+        writer.newLine();
+        writer.write("from jpype import *");
 
         writer.newLine();
         writer.write("from typing import Union");

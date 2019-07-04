@@ -17,15 +17,6 @@ class TypeHintsUtils {
         PRIMITIVE_TYPE_NAMES.put(float.class, "Union[float, JFloat]");
         PRIMITIVE_TYPE_NAMES.put(double.class, "Union[float, JDouble]");
         PRIMITIVE_TYPE_NAMES.put(void.class, "None");
-
-        PRIMITIVE_TYPE_NAMES.put(int[].class, "JArray(JInt, 1)");
-        PRIMITIVE_TYPE_NAMES.put(short[].class, "JArray(JShort, 1)");
-        PRIMITIVE_TYPE_NAMES.put(boolean[].class, "JArray(JBoolean, 1)");
-        PRIMITIVE_TYPE_NAMES.put(char[].class, "JArray(JChar, 1)");
-        PRIMITIVE_TYPE_NAMES.put(byte[].class, "JArray(JByte, 1)");
-        PRIMITIVE_TYPE_NAMES.put(long[].class, "JArray(JLong, 1)");
-        PRIMITIVE_TYPE_NAMES.put(float[].class, "JArray(JFloat, 1)");
-        PRIMITIVE_TYPE_NAMES.put(double[].class, "JArray(JDouble, 1)");
     }
 
     static final Collection<Class<?>> PRIMITIVE_TYPES = Collections.unmodifiableSet(PRIMITIVE_TYPE_NAMES.keySet());
@@ -95,10 +86,17 @@ class TypeHintsUtils {
     static String pythonQualifiedClassName(String rootPackage, Class<?> classe) {
         if (PRIMITIVE_TYPES.contains(classe)) return primitivePythonClassName(classe);
         try {
-
             String canonicalName = classe.getCanonicalName();
             // local or anonymous classes do not have a canonical name, but we do not care about them.
             if (canonicalName == null) return "Any";
+
+            if (classe.isArray()) {
+                final Class<?> componentType = classe.getComponentType();
+                // multi-dimensional arrays are a mess... Ignore them, as they are not that common?
+                return "JArray("+pythonQualifiedClassName(rootPackage, componentType)+", 1)";
+            }
+
+            // TODO handle generics
 
             if (rootPackage == null || rootPackage.length() == 0) return canonicalName;
             return rootPackage+"."+canonicalName;
