@@ -177,7 +177,7 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
         # TODO find a better way to do this, in setup.py itself
         shutil.copytree('pythonmatsim', 'generatedcode/pythonmatsim')
         for f in os.listdir('./'):
-            if f != 'setup.py' and f.endswith('.py'):
+            if f != 'setup.py' and f.endswith(('.py', '.pyi')) :
                 shutil.copy(f, 'generatedcode/')
 
         os.mkdir('generatedcode/javaresources/')
