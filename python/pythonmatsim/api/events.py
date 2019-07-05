@@ -108,6 +108,7 @@ class _ControlerEventListenerCustomizer:
         else:
             self.getEvents().addHandler(handler)
 
+
 def add_event_handler(controler, handler, buffer_size=1):
     wrapped = BufferedProtocolBufferSender(buffer_size, handler)
     controler.getEvents().addHandler(wrapped)

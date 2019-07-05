@@ -209,6 +209,8 @@ public class PyiUtils {
 
         writeConstructorsHints(prefix + '\t', writer, rootPackage, rootClass);
 
+        // TODO add public static fields
+
         if (classTypeInfo.getRootClass().isEnum()) {
             writeEnumHints(prefix + '\t', writer, rootPackage, classTypeInfo);
         }
@@ -231,6 +233,7 @@ public class PyiUtils {
             writer.write(prefix);
             writer.write(((Enum) constant).name()+": ");
             writer.write(TypeHintsUtils.pythonClassName(classTypeInfo.getRootClass()));
+            writer.write(" = ...");
             writer.newLine();
         }
     }
@@ -296,9 +299,15 @@ public class PyiUtils {
                                          String rootPackage,
                                          String name,
                                          Method method) throws IOException {
+        final boolean isStatic = Modifier.isStatic(method.getModifiers());
+
+        if (isStatic) {
+            writer.write(prefix+"@classmethod");
+            writer.newLine();
+        }
 
         writer.write(prefix + "def " + name + "(");
-        if (!Modifier.isStatic(method.getModifiers())) {
+        if (!isStatic) {
             writer.write("self, ");
         }
 
