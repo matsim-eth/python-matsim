@@ -5,7 +5,6 @@ import atexit
 import signal
 from typing import List, Tuple
 
-import jpype
 import logging
 import pkg_resources
 import setuptools
@@ -72,7 +71,12 @@ class JvmConfig:
                     out.writelines(lines)
 
     def build_and_start_jvm(self, maven_dir: str, code_dir: str, root_package: str,
-                            jvm_path=jpype.get_default_jvm_path()):
+                            jvm_path=None):
+        # Needs to be done here to work with setuptools setup_requires
+        # (otherwise imported before that line is even read)
+        import jpype
+        if jvm_path is None:
+            jvm_path= jpype.get_default_jvm_path()
         _logger.debug('generating classpath in {}'.format(maven_dir))
 
         pom_path = os.path.join(maven_dir, 'pom.xml')

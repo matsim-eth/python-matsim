@@ -34,15 +34,23 @@ class EventType:
     genericEvent = 'genericEvent'
 
 
-def event_listener(classe):
-    """
-    Decorator to identify classes that can be
-    :param classe:
-    :return:
-    """
-    pass
 
+
+@jp.JImplements("org.matsim.contrib.pythonmatsim.events.BufferedProtocolBufferSender$Listener")
 class EventListener:
+    @jp.JOverride
+    def reset(self, iteration):
+        pass
+
+    @jp.JOverride
+    def handleEventBuffer(self, message):
+        buffer = EventBuffer()
+        buffer.ParseFromString(message[:])
+
+        for event in buffer.event:
+            event_type = event.WhichOneof("event_type")
+            self._handle_typed_event(event_type, getattr(event, event_type))
+
     def _method_for_type(self, event_type):
         if not hasattr(self, '_method_per_type'):
             self._create_method_per_type()
@@ -83,26 +91,13 @@ def listen_to(*act_types):
 
     return decorator
 
+#@jp.JImplementationFor("org.matsim.core.controler.Controler")
+#class _ControlerEventListenerCustomizer:
+#try to customize the "addEventHandler" method
 
-def create_buffered_event_handler(handler, buffer_size=1):
-    class ProtobufHandler:
-        def reset(self, iteration):
-            if hasattr(handler, "reset"):
-                handler.reset(iteration)
-
-        def handleEventBuffer(self, message):
-            buffer = EventBuffer()
-            buffer.ParseFromString(message[:])
-
-            for event in buffer.event:
-                event_type = event.WhichOneof("event_type")
-                handler._handle_typed_event(event_type, getattr(event, event_type))
-
-    impl = jp.JProxy("org.matsim.contrib.pythonmatsim.events.BufferedProtocolBufferSender$Listener", inst=ProtobufHandler())
-    return BufferedProtocolBufferSender(buffer_size, impl)
-
-
+# Need to get rid of that. Maybe by using @ImplementationFor(BufferedProtocolBufferSender) on the EventListener?
+# Basically try to attach the buffered versio automatically...
 def add_event_handler(controler, handler, buffer_size=1):
-    wrapped = create_buffered_event_handler(handler, buffer_size)
+    wrapped = BufferedProtocolBufferSender(buffer_size, handler)
     controler.getEvents().addHandler(wrapped)
     controler.addControlerListener(wrapped)

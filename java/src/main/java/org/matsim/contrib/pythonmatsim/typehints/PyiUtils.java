@@ -189,10 +189,6 @@ public class PyiUtils {
         writer.write(" = jpype.JClass(\'");
         writer.write(classTypeInfo.getRootClass().getName());
         writer.write("\')");
-
-        for (Packages.ClassInfo member : classTypeInfo.getInnerClasses()) {
-            writePythonJpypeClass(writer, member);
-        }
     }
 
     private static void writeClassHints(String prefix, BufferedWriter writer, String rootPackage, Packages.ClassInfo classTypeInfo) throws IOException {
@@ -340,9 +336,8 @@ public class PyiUtils {
             writer.newLine();
         }
 
-        // TODO import jpype wrapper types only?
         writer.newLine();
-        writer.write("from jpype import *");
+        writer.write("from jpype.types import *");
 
         writer.newLine();
         writer.write("from typing import Union");

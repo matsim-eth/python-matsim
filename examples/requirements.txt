@@ -1,43 +1,5 @@
-attrs==19.1.0
-backcall==0.1.0
-bleach==3.1.0
-decorator==4.4.0
-defusedxml==0.6.0
-entrypoints==0.3
-ipykernel==5.1.0
-ipython==7.5.0
-ipython-genutils==0.2.0
-jedi==0.13.3
-Jinja2==2.10.1
--e git+https://github.com/jpype-project/jpype.git@3ce953ae7b35244077249ce650b9acd0a7010d17#egg=JPype1
-jsonschema==3.0.1
-jupyter-client==5.2.4
-jupyter-core==4.4.0
-jupyterlab==0.35.6
-jupyterlab-server==0.2.0
-MarkupSafe==1.1.1
-mistune==0.8.4
-nbconvert==5.5.0
-nbformat==4.4.0
-notebook==5.7.8
+JPype1==0.7.0
 numpy==1.16.3
-pandocfilters==1.4.2
-parso==0.4.0
-pexpect==4.7.0
-pickleshare==0.7.5
-prometheus-client==0.6.0
-prompt-toolkit==2.0.9
-ptyprocess==0.6.0
-Pygments==2.4.0
-pyrsistent==0.15.2
-python-dateutil==2.8.0
--e git+git@github.com:matsim-eth/python-matsim.git@7b425b86d8d276d04643dcd7a7b1074be18e52d0#egg=pythonmatsim&subdirectory=python
-pyzmq==18.0.1
-Send2Trash==1.5.0
+protobuf==3.8.0
+-e git+git@github.com:matsim-eth/python-matsim.git@2d9f6cbc825dced214f426dac4277fee32636705#egg=pythonmatsim&subdirectory=python
 six==1.12.0
-terminado==0.8.2
-testpath==0.4.2
-tornado==6.0.2
-traitlets==4.3.2
-wcwidth==0.1.7
-webencodings==0.5.1

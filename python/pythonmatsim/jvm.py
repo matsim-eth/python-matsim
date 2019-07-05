@@ -20,6 +20,6 @@ def start_jvm(jvm_path=jpype.get_default_jvm_path(),
 
     _logger.info('start jvm with classpath {}'.format(jpype.getClassPath()))
 
-    jpype.startJVM(jvm_path, "-Djava.class.path=%s" % jpype.getClassPath())
+    jpype.startJVM(jvm_path, "-Djava.class.path=%s" % jpype.getClassPath(), convertStrings=False)
 
 

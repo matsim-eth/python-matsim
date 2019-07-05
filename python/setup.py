@@ -24,9 +24,11 @@ setup(
     author_email='thibaut.dubernet@ivt.baug.ethz.ch',
     description='A package to use MATSim from Python',
     setup_requires=[
-        'JPype1==0.6.3',
+        'numpy==1.16.3',
+        'JPype1==0.7.0',
     ],
     install_requires=[
+        'numpy==1.16.3',
         'JPype1==0.7.0',
         'protobuf==3.8.0',
     ],

@@ -12,4 +12,9 @@ python: python_pbf
 	cd python &&  venv/bin/python setup.py build egg_info install
 
 examples: python
-	cd examples && venv/bin/pip install --upgrade -e ../python/ && venv/bin/pip freeze > requirements.txt
+	cd examples && \
+		rm -f requirements.txt && \
+		venv/bin/pip freeze --exclude-editable | xargs -r venv/bin/pip uninstall -y && \
+		venv/bin/pip install numpy==1.16.3 && \
+		venv/bin/pip install --no-binary :all: -e ../python/ && \
+		venv/bin/pip freeze > requirements.txt
