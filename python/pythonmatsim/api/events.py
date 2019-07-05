@@ -36,7 +36,7 @@ class EventType:
 
 
 
-@jp.JImplements("org.matsim.contrib.pythonmatsim.events.BufferedProtocolBufferSender$Listener")
+@jp.JImplements(BufferedProtocolBufferSender.Listener)
 class EventListener:
     @jp.JOverride
     def reset(self, iteration):
@@ -44,6 +44,11 @@ class EventListener:
 
     @jp.JOverride
     def handleEventBuffer(self, message):
+        if (len(message) == 0):
+            # 0-length message (happening for instance after mobsim) creates problems, because JPype does not have a
+            # numpy array to return and spits a list instead. Abort early.
+            return
+
         buffer = EventBuffer()
         buffer.ParseFromString(message[:])
 
@@ -91,12 +96,17 @@ def listen_to(*act_types):
 
     return decorator
 
-#@jp.JImplementationFor("org.matsim.core.controler.Controler")
-#class _ControlerEventListenerCustomizer:
-#try to customize the "addEventHandler" method
+@jp.JImplementationFor("org.matsim.core.controler.Controler")
+class _ControlerEventListenerCustomizer:
+    # TODO: find a way to have this land in the stubs files...
+    def addEventHandler(self, handler, buffer_size=1):
+        # Somehow does not seem to work...
+        #if isinstance(handler, BufferedProtocolBufferSender.Listener):
+        if isinstance(handler, EventListener):
+            add_event_handler(self, handler, buffer_size)
+        else:
+            self.getEvents().addHandler(handler)
 
-# Need to get rid of that. Maybe by using @ImplementationFor(BufferedProtocolBufferSender) on the EventListener?
-# Basically try to attach the buffered versio automatically...
 def add_event_handler(controler, handler, buffer_size=1):
     wrapped = BufferedProtocolBufferSender(buffer_size, handler)
     controler.getEvents().addHandler(wrapped)

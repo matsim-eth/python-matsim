@@ -1,5 +1,1 @@
-JPype1==0.7.0
-numpy==1.16.3
-protobuf==3.8.0
--e git+git@github.com:matsim-eth/python-matsim.git@2d9f6cbc825dced214f426dac4277fee32636705#egg=pythonmatsim&subdirectory=python
-six==1.12.0
+-e git+git@github.com:matsim-eth/python-matsim.git@94423b94f38fca30b7e491eab91808c9f915f7cb#egg=pythonmatsim&subdirectory=python

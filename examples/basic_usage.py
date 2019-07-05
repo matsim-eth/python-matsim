@@ -38,6 +38,6 @@ if __name__ == "__main__":
                 # Somehow type hint above does not help. Need to investigate
                 print(event.persId)
 
-        add_event_handler(controler, ShoutListener())
+        controler.addEventHandler(ShoutListener())
         controler.run()
 

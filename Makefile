@@ -13,8 +13,4 @@ python: python_pbf
 
 examples: python
 	cd examples && \
-		rm -f requirements.txt && \
-		venv/bin/pip freeze --exclude-editable | xargs -r venv/bin/pip uninstall -y && \
-		venv/bin/pip install numpy==1.16.3 && \
-		venv/bin/pip install --no-binary :all: -e ../python/ && \
-		venv/bin/pip freeze > requirements.txt
+		venv/bin/pip install --no-binary :all: -e ../python/
