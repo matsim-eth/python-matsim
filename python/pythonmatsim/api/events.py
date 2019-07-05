@@ -5,6 +5,8 @@ from collections import defaultdict
 import inspect
 
 from EventBuffer_pb2 import EventBuffer
+# for the side effect of re-exporting
+import events_pb2 as event_type
 
 # this assumes the JVM is started with the correct classpath
 
@@ -16,24 +18,23 @@ BufferedProtocolBufferSender = _org.matsim.contrib.pythonmatsim.events.BufferedP
 logger = logging.getLogger(__name__)
 
 
-class EventType:
-    actEnd = 'actEnd'
-    actStart = 'actStart'
-    linkEnter = 'linkEnter'
-    linkLeave = 'linkLeave'
-    personArrival = 'personArrival'
-    personDeparture = 'personDeparture'
-    personEntersVehicle = 'personEntersVehicle'
-    personLeavesVehicle = 'personLeavesVehicle'
-    personMoney = 'personMoney'
-    personStuck = 'personStuck'
-    transitDriverStarts = 'transitDriverStarts'
-    vehicleAborts = 'vehicleAborts'
-    vehicleEntersTraffic = 'vehicleEntersTraffic'
-    vehicleLeavesTraffic = 'vehicleLeavesTraffic'
-    genericEvent = 'genericEvent'
-
-
+_EVENT_CLASS_TO_TYPE = {
+    event_type.ActivityEndEvent: 'actEnd',
+    event_type.ActivityStartEvent: 'actStart',
+    event_type.LinkEnterEvent : 'linkEnter',
+    event_type.LinkLeaveEvent : 'linkLeave',
+    event_type.PersonArrivalEvent : 'personArrival',
+    event_type.PersonDepartureEvent : 'personDeparture',
+    event_type.PersonEntersVehicleEvent : 'personEntersVehicle',
+    event_type.PersonLeavesVehicleEvent : 'personLeavesVehicle',
+    event_type.PersonMoneyEvent : 'personMoney',
+    event_type.PersonStuckEvent : 'personStuck',
+    event_type.TransitDriverStartsEvent : 'transitDriverStarts',
+    event_type.VehicleAbortsEvent : 'vehicleAborts',
+    event_type.VehicleEntersTrafficEvent : 'vehicleEntersTraffic',
+    event_type.VehicleLeavesTrafficEvent : 'vehicleLeavesTraffic',
+    event_type.GenericEvent : 'genericEvent',
+}
 
 
 @jp.JImplements(BufferedProtocolBufferSender.Listener)
@@ -90,7 +91,7 @@ def listen_to(*act_types):
             method.listened_events = set()
 
         for t in act_types:
-            method.listened_events.add(t)
+            method.listened_events.add(_EVENT_CLASS_TO_TYPE[t])
 
         return method
 

@@ -7,7 +7,6 @@ import javawrappers.java.net as jnet
 import javawrappers.org.matsim.core.controler as jcontroler
 
 from pythonmatsim.api.events import *
-import events_pb2 as events
 from typing import Union
 
 import tempfile
@@ -33,8 +32,8 @@ if __name__ == "__main__":
                 print("########################################################################################")
                 print(iteration)
 
-            @listen_to(EventType.actStart, EventType.actEnd)
-            def handleAct(self, event: Union[events.ActivityStartEvent, events.ActivityEndEvent]):
+            @listen_to(event_type.ActivityStartEvent, event_type.ActivityEndEvent)
+            def handleAct(self, event: Union[event_type.ActivityStartEvent, event_type.ActivityEndEvent]):
                 # Somehow type hint above does not help. Need to investigate
                 print(event.persId)
 
