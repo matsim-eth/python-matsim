@@ -13,4 +13,5 @@ python: python_pbf
 
 examples: python
 	cd examples && \
-		venv/bin/pip install --no-binary :all: -e ../python/
+		venv/bin/pip install --no-binary :all: -e ../python/ && \
+		venv/bin/pip freeze | grep '^-e' > requirements.txt
