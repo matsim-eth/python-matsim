@@ -1,0 +1,24 @@
+os:
+  - linux
+
+language: python
+
+python:
+  - '3.5'
+  - '3.6'
+  - '3.7'
+
+env:
+  global:
+    - PYTHON=python
+    - PIP=pip
+    - INST=""
+
+install:
+  - make python_dist
+  - cd python/
+  - $PIP install $INST dist/*
+
+script:
+  - $PYTHON -c "import pythonmatsim"
+  #- $PYTHON -m pytest -v test/jpypetest
