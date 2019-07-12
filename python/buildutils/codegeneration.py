@@ -124,7 +124,7 @@ class JvmConfig:
 
         try:
             PyiUtils.generatePythonWrappers(code_dir, root_package)
-        except jpype.JavaException as e:
+        except jpype.JException as e:
             print(e.message())
             print(e.stacktrace())
             raise e

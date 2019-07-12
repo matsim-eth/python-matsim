@@ -8,6 +8,10 @@ python:
   - '3.6'
   - '3.7'
 
+jdk:
+  - oraclejdk8
+  - openjdk8
+
 env:
   global:
     - PYTHON=python
