@@ -27,6 +27,9 @@ from buildutils.codegeneration import JavaAdapterCodeGenerationCommand
 class MyBuild(build):
     sub_commands = [('codegen', None)] + build.sub_commands
 
+with open('../README.md') as f:
+    long_description = f.read()
+
 setup(
     name='pythonmatsim',
     version='0.1a1',
@@ -38,11 +41,22 @@ setup(
         '': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',
     },
     include_package_data=True,
-    url='',
+    url='https://github.com/matsim-eth/python-matsim',
     license='GNU GPL 3.0',
     author='Thibaut Dubernet',
     author_email='thibaut.dubernet@ivt.baug.ethz.ch',
     description='A package to use MATSim from Python',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Programming Language :: Java",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Operating System :: OS Independent",
+    ],
     setup_requires=[
         'numpy==1.16.3',
         'JPype1==0.7.0',
