@@ -14,15 +14,26 @@ env:
     - PIP=pip
     - INST=""
 
-addons:
-  apt:
-    packages:
-    - protobuf-compiler
+#addons:
+#  apt:
+#    packages:
+#    - protobuf-compiler
+
+# for manual installation of protoc. Needed for proto3 format...
+before_install:
+  - export PATH=$HOME/protobuf/bin:$PATH
+  - export C_INCLUDE_PATH=$C_INCLUDE_PATH:$HOME/protobuf/include
+  - export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$HOME/protobuf/include
 
 install:
+  - mkdir -p $HOME/protobuf && pushd $HOME/protobuf &&
+    curl -LO 'https://github.com/google/protobuf/releases/download/v3.6.0/protoc-3.6.0-linux-x86_64.zip' &&
+    unzip protoc-3.6.0-linux-x86_64.zip &&
+    popd
   - make python_dist
   - cd python/
   - $PIP install $INST dist/*
+
 
 script:
   - $PYTHON -c "import pythonmatsim"
