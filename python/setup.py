@@ -18,27 +18,7 @@
 #                                                                         #
 # ####################################################################### #/
 
- 
-/* *********************************************************************** *
- * project: python-matsim
- * setup.py
- *                                                                         *
- * *********************************************************************** *
- *                                                                         *
- * copyright       : (C) 2019 by the members listed in the COPYING,        *
- *                   LICENSE and WARRANTY file.                            *
- *                                                                         *
- * *********************************************************************** *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *   See also COPYING, LICENSE and WARRANTY file                           *
- *                                                                         *
- * *********************************************************************** */
-
- from setuptools import setup, find_packages, Command
+from setuptools import setup, find_packages, Command
 from distutils.command.build import build
 
 from buildutils.codegeneration import JavaAdapterCodeGenerationCommand
@@ -56,10 +36,10 @@ setup(
     package_dir={'': 'generatedcode/'},
     # Note that this works only when code was already generated... Find a fix.
     packages=find_packages('generatedcode/', exclude=('buildutils', 'test')),
-    package_data = {
-        #'buildutils': '*.xml',
-        '': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',
-    },
+    #package_data = {
+    #    #'buildutils': '*.xml',
+    #    'javaresources': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',
+    #},
     include_package_data=True,
     url='https://github.com/matsim-eth/python-matsim',
     license='GNU GPL 3.0',

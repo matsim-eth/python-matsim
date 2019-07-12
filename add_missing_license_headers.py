@@ -62,6 +62,9 @@ code_files = [(ext, f)
               for f in pathlib.Path('.').rglob('*.'+ext)]
 
 for ext, f in code_files:
+    if 'venv' in f.parts:
+        continue
+
     file_content = open(f, newline='').read()
     if not test_header[ext] in file_content:
         print(f'adding header to file {f}')

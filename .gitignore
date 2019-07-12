@@ -7,3 +7,5 @@ output/
 venv
 .eggs
 *.pyc
+*_pb2.py
+*_pb2.pyi

@@ -18,27 +18,8 @@
 #                                                                         #
 # ####################################################################### #/
 
- 
-/* *********************************************************************** *
- * project: python-matsim
- * codegeneration.py
- *                                                                         *
- * *********************************************************************** *
- *                                                                         *
- * copyright       : (C) 2019 by the members listed in the COPYING,        *
- *                   LICENSE and WARRANTY file.                            *
- *                                                                         *
- * *********************************************************************** *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *   See also COPYING, LICENSE and WARRANTY file                           *
- *                                                                         *
- * *********************************************************************** */
 
- import xml.etree.ElementTree as et
+import xml.etree.ElementTree as et
 import os
 import subprocess
 import atexit
@@ -133,7 +114,7 @@ class JvmConfig:
                 _logger.debug('adding {} to classpath'.format(full_path))
                 jpype.addClassPath(full_path)
 
-        jpype.startJVM(jvm_path, "-Djava.class.path=%s" % jpype.getClassPath())
+        jpype.startJVM(jvm_path, "-Djava.class.path=%s" % jpype.getClassPath(), convertStrings=False)
 
         # TODO: generate pxi files for all classes on classpath. Needs to be done after build
         # - generate python type-hinted classes
@@ -208,21 +189,23 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
             add_dependency(group_id=group_id, artifact_id=artifact_id, version=version)
 
         shutil.rmtree('generatedcode', ignore_errors=True)
-        if not os.path.exists('mavendir/'):
-            os.mkdir('mavendir/')
-        build_and_start_jvm(os.path.abspath('mavendir/'),
-                            os.path.abspath('generatedcode/'),
+        if not os.path.exists('mavendir'):
+            os.mkdir('mavendir')
+        build_and_start_jvm(os.path.abspath('mavendir'),
+                            os.path.abspath('generatedcode'),
                             'javawrappers')
 
         # TODO find a better way to do this, in setup.py itself
-        shutil.copytree('pythonmatsim', 'generatedcode/pythonmatsim')
-        for f in os.listdir('./'):
+        shutil.copytree('pythonmatsim', os.path.join('generatedcode', 'pythonmatsim'))
+        for f in os.listdir('.'):
             if f != 'setup.py' and f.endswith(('.py', '.pyi')) :
-                shutil.copy(f, 'generatedcode/')
+                shutil.copy(f, 'generatedcode')
 
-        os.mkdir('generatedcode/javaresources/')
-        open('generatedcode/javaresources/__init__.py', 'a').close()
-        for f in os.listdir('mavendir/target/'):
+        os.mkdir(os.path.join('generatedcode', 'javaresources'))
+        open(os.path.join('generatedcode', 'javaresources', '__init__.py'), 'a').close()
+        for f in os.listdir(os.path.join('mavendir', 'target')):
             if f.endswith('jar-with-dependencies.jar'):
-                shutil.copy(os.path.join('mavendir', 'target', f), 'generatedcode/javaresources/')
+                shutil.copy(
+                    os.path.join('mavendir', 'target', f),
+                    os.path.join('generatedcode', 'javaresources'))
 

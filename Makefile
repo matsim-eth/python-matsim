@@ -12,6 +12,9 @@ python_pbf: maven
 python: python_pbf
 	cd python &&  venv/bin/python setup.py build egg_info install
 
+python_dist: python_pbf
+	cd python && venv/bin/python setup.py build egg_info sdist bdist_wheel
+
 examples: python
 	cd examples && \
 		venv/bin/pip install --no-binary :all: -e ../python/ && \
