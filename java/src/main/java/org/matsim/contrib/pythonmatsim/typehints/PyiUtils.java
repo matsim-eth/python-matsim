@@ -109,7 +109,7 @@ public class PyiUtils {
 
                                 try {
                                     classes.add(cl.loadClass(className));
-                                } catch (ClassNotFoundException ex) {
+                                } catch (LinkageError | ClassNotFoundException ex) {
                                     log.warn("could not load class "+className);
                                 }
                             }
