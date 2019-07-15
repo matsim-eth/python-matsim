@@ -89,9 +89,11 @@ public class PyiUtils {
 
             // with jrt, there is not classpath, so the Guava "getAllClasses" of class loader method does not work.
             // Need to iterate directly
+            final String basePath = "/modules/java.base/";
+            final int prefixLength = ("jrt:"+basePath).length();
 
             Files.walkFileTree(
-                    fs.getPath("/modules/java.base/"),
+                    fs.getPath(basePath),
                     new SimpleFileVisitor<Path>() {
                         @Override
                         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -100,7 +102,9 @@ public class PyiUtils {
                             if (fileName.endsWith(".class") && !fileName.contains("$")) {
                                 log.info("found class "+fileName);
 
-                                String className = fileName.substring(0, fileName.length() - 6).replace("/", ".");
+                                String className = fileName.substring(prefixLength, fileName.length() - 6).replace("/", ".");
+
+                                log.info("try to load class "+className);
 
                                 try {
                                     classes.add(Object.class.getClassLoader().loadClass(className));
