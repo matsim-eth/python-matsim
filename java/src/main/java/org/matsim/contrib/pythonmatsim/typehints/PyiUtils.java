@@ -101,11 +101,11 @@ public class PyiUtils {
                             String fileName = file.toUri().toString();
 
                             if (fileName.endsWith(".class") && !fileName.contains("$")) {
-                                log.info("found class "+fileName);
+                                log.debug("found class "+fileName);
 
                                 String className = fileName.substring(prefixLength, fileName.length() - 6).replace("/", ".");
 
-                                log.info("try to load class "+className);
+                                log.debug("try to load class "+className);
 
                                 try {
                                     classes.add(cl.loadClass(className));
@@ -134,13 +134,13 @@ public class PyiUtils {
 
     private static void generatePyiFiles(final String rootPath, final String rootPackage) throws IOException {
         final String packagePath = rootPath +"/"+ rootPackage;
-        log.info("generating python .pyi files in "+packagePath);
+        log.debug("generating python .pyi files in "+packagePath);
         final File rootDir = new File(packagePath);
 
         for (Packages.PackageInfo info : scan()) {
             File file = getPackageFile(rootDir, info, ".pyi");
 
-            log.info("generate "+file.getCanonicalPath());
+            log.debug("generate "+file.getCanonicalPath());
 
             try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
                 writeHeader(writer);
@@ -161,13 +161,13 @@ public class PyiUtils {
 
     private static void generatePythonFiles(final String rootPath, String rootPackage) throws IOException {
         final String packagePath = rootPath +"/"+ rootPackage;
-        log.info("generating python .py files in "+packagePath);
+        log.debug("generating python .py files in "+packagePath);
         final File rootDir = new File(packagePath);
 
         for (Packages.PackageInfo info : scan()) {
             File file = getPackageFile(rootDir, info, ".py");
 
-            log.info("generate "+file.getCanonicalPath());
+            log.debug("generate "+file.getCanonicalPath());
 
             try (BufferedWriter writer = IOUtils.getBufferedWriter(file.getCanonicalPath())) {
                 writeHeader(writer);
@@ -186,7 +186,7 @@ public class PyiUtils {
     }
 
     private static void generateInitFiles(final File rootDir) throws IOException {
-        log.info("generating python __init__.py files in "+rootDir.getPath());
+        log.debug("generating python __init__.py files in "+rootDir.getPath());
 
         writeInitFile(rootDir);
 
