@@ -91,6 +91,7 @@ public class PyiUtils {
             // Need to iterate directly
             final String basePath = "/modules/java.base/";
             final int prefixLength = ("jrt:"+basePath).length();
+            final ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
             Files.walkFileTree(
                     fs.getPath(basePath),
@@ -107,7 +108,7 @@ public class PyiUtils {
                                 log.info("try to load class "+className);
 
                                 try {
-                                    classes.add(Object.class.getClassLoader().loadClass(className));
+                                    classes.add(cl.loadClass(className));
                                 } catch (ClassNotFoundException ex) {
                                     log.warn("could not load class "+className);
                                 }
