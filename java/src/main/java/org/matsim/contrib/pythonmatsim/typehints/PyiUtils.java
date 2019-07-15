@@ -33,9 +33,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.net.*;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -53,7 +52,7 @@ public class PyiUtils {
                     loader = loader.getParent()) {
                 addClasses(loader, classes);
             }
-            addClasses(getBootstrapClassLoader(), classes);
+            addBootstrapClasses(classes);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -75,27 +74,44 @@ public class PyiUtils {
         }
     }
 
-    private static ClassLoader getBootstrapClassLoader() throws IOException {
+    private static void addBootstrapClasses(Collection<Class<?>> classes) throws IOException {
         // XXX See https://openjdk.java.net/jeps/220 for after Java 8
         // get URL of rt.jar, where all java.* classes are (they are not on the classpath and need to be handled ad-hoc)
         try {
             URL fileURL = ((JarURLConnection) ClassLoader.getSystemResource("java/lang/Class.class").openConnection())
                     .getJarFileURL();
 
-            return URLClassLoader.newInstance(new URL[]{new URL("jar:" + fileURL.toString() + "!/")});
+            ClassLoader cl = URLClassLoader.newInstance(new URL[]{new URL("jar:" + fileURL.toString() + "!/")});
+            addClasses(cl, classes);
         }
         catch (ClassCastException e) {
             FileSystem fs = FileSystems.getFileSystem(URI.create("jrt:/"));
-            return URLClassLoader.newInstance(
-                    StreamSupport.stream(fs.getRootDirectories().spliterator(), false)
-                    .map(path -> {
-                        try {
-                            return path.toUri().toURL();
-                        } catch (MalformedURLException ex) {
-                            throw new RuntimeException(ex);
+
+            // with jrt, there is not classpath, so the Guava "getAllClasses" of class loader method does not work.
+            // Need to iterate directly
+
+            Files.walkFileTree(
+                    fs.getPath("/modules/java.base/"),
+                    new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                            String fileName = file.getFileName().toString();
+
+                            if (fileName.endsWith(".class") && !fileName.contains("$")) {
+                                log.debug("found class "+fileName);
+
+                                String className = fileName.substring(0, fileName.length() - 6).replace("/", ".");
+
+                                try {
+                                    classes.add(Object.class.getClassLoader().loadClass(className));
+                                } catch (ClassNotFoundException ex) {
+                                    log.warn("could not load class "+className);
+                                }
+                            }
+
+                            return FileVisitResult.CONTINUE;
                         }
-                    })
-                    .toArray(URL[]::new)
+                    }
             );
         }
     }
