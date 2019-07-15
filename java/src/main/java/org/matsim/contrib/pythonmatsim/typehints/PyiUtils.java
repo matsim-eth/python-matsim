@@ -95,7 +95,7 @@ public class PyiUtils {
                     new SimpleFileVisitor<Path>() {
                         @Override
                         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                            String fileName = file.getFileName().toString();
+                            String fileName = file.toUri().toString();
 
                             if (fileName.endsWith(".class") && !fileName.contains("$")) {
                                 log.info("found class "+fileName);
