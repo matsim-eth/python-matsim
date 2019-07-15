@@ -98,7 +98,7 @@ public class PyiUtils {
                             String fileName = file.getFileName().toString();
 
                             if (fileName.endsWith(".class") && !fileName.contains("$")) {
-                                log.debug("found class "+fileName);
+                                log.info("found class "+fileName);
 
                                 String className = fileName.substring(0, fileName.length() - 6).replace("/", ".");
 
