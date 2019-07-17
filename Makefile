@@ -1,4 +1,5 @@
 PYTHON=python3.6
+PYTHON_DIR=$(PWD)
 
 .PHONY: all maven python python_pbf
 
@@ -14,10 +15,10 @@ python_pbf: maven | java/venv
 %/venv:
 	cd $(@D) && virtualenv -p $(PYTHON) venv/ && venv/bin/pip install -r requirements.txt
 
-python: python_pbf | ./venv
+python: python_pbf | $(PYTHON_DIR)/venv
 	venv/bin/python setup.py build egg_info install
 
-python_dist: python_pbf | ./venv
+python_dist: python_pbf | $(PYTHON_DIR)/venv
 	venv/bin/python setup.py build egg_info sdist bdist_wheel
 
 examples: python | examples/venv
