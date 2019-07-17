@@ -16,10 +16,10 @@ python_pbf: maven | java/venv
 	cd $(@D) && virtualenv -p $(PYTHON) venv/ && venv/bin/pip install -r requirements.txt
 
 python: python_pbf | $(PYTHON_DIR)/venv
-	venv/bin/python setup.py build egg_info install
+	venv/bin/python setup.py build sdist install
 
 python_dist: python_pbf | $(PYTHON_DIR)/venv
-	venv/bin/python setup.py build egg_info sdist bdist_wheel
+	venv/bin/python setup.py build sdist bdist_wheel
 
 examples: python | examples/venv
 	cd examples && \
