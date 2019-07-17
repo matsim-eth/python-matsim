@@ -52,10 +52,10 @@ setup(
     version='0.1a1',
     package_dir={'': 'generatedcode/'},
     packages=PackageFinder().find_packages,
-    #package_data = {
-    #    #'buildutils': '*.xml',
-    #    'javaresources': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',
-    #},
+    package_data = {
+        #'buildutils': '*.xml',
+        'javaresources': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',
+    },
     include_package_data=True,
     url='https://github.com/matsim-eth/python-matsim',
     license='GNU GPL 3.0',
