@@ -1,1 +1,8 @@
 recursive-include generatedcode *jar-with-dependencies.jar
+
+include README.md COPYING LICENSE WARRANTY
+
+# Necessary to distribute all required utilities for installing source distribution
+graft buildutils
+
+global-exclude *.pyc

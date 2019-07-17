@@ -2,7 +2,7 @@ PYTHON=python3.6
 
 .PHONY: all maven python python_pbf
 
-all: maven python examples
+all: python_dist
 
 maven:
 	cd java/ && mvn install -DskipTests=true

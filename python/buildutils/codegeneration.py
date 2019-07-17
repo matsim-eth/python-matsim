@@ -198,9 +198,6 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
         # TODO find a better way to do this, in setup.py itself
         shutil.copytree('pythonmatsim', os.path.join('generatedcode', 'pythonmatsim'))
 
-        # This is necessary to get an installable source distribution
-        shutil.copytree('buildutils', os.path.join('generatedcode', 'buildutils'))
-
         for f in os.listdir('.'):
             if f != 'setup.py' and f.endswith(('.py', '.pyi')) :
                 shutil.copy(f, 'generatedcode')

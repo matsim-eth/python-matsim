@@ -38,7 +38,13 @@ with open('../README.md') as f:
 class PackageFinder:
     @property
     def find_packages(self):
-        return find_packages('generatedcode/', exclude=('buildutils', 'test'))
+        return find_packages(
+            'generatedcode/',
+            exclude=(
+                'buildutils',
+                'test',
+            )
+        )
 
 setup(
     name='pythonmatsim',
