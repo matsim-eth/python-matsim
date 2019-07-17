@@ -32,14 +32,14 @@ from typing import Union
 
 import tempfile
 
-# This line is not strictly necessary, but helps IDEs identify that file as "executable"
-if __name__ == "__main__":
+
+def main():
     # Do everything in a temporary directory that will be deleted at the end. Not always the best choice,
     # but good idea when doing interactive analysis
     with tempfile.TemporaryDirectory() as tmp:
         # in PyCharm, such chains are possible with autocomplete all the way, with type hints for the parameters
         # This unfortunately does not work in Jupyter.
-        config = jconfig.ConfigUtils.loadConfig(jnet.URL('https://raw.githubusercontent.com/matsim-org/matsim/master/examples/scenarios/equil/config.xml'))
+        config = jconfig.ConfigUtils.loadConfig(jnet.URL('https://raw.githubusercontent.com/matsim-org/matsim/master/examples/scenarios/equil/config_plans1.xml'))
 
         config.controler().setDumpDataAtEnd(False)
         config.controler().setLastIteration(1)
@@ -61,3 +61,7 @@ if __name__ == "__main__":
         controler.addEventHandler(ShoutListener())
         controler.run()
 
+
+# This line is not strictly necessary, but helps IDEs identify that file as "executable"
+if __name__ == "__main__":
+    main()

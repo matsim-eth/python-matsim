@@ -18,7 +18,7 @@
 #                                                                         #
 # ####################################################################### #/
 
- import unittest
+import unittest
 import jpype
 import buildutils.codegeneration as jc
 
