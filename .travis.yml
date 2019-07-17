@@ -43,4 +43,4 @@ install:
 
 script:
   - $PYTHON -c "import pythonmatsim"
-  #- $PYTHON -m pytest -v test/jpypetest
+  - $PYTHON -m unittest test/*_test.py
