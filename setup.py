@@ -27,7 +27,7 @@ from buildutils.codegeneration import JavaAdapterCodeGenerationCommand
 class MyBuild(build):
     sub_commands = [('codegen', None)] + build.sub_commands
 
-with open('../README.md') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 # Hack to delay evaluation of "find packages" to after code was generated.
@@ -42,6 +42,7 @@ class PackageFinder:
             'generatedcode/',
             exclude=(
                 'buildutils',
+                'java',
                 'test',
             )
         )

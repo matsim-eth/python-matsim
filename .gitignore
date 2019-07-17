@@ -9,3 +9,11 @@ venv
 *.pyc
 *_pb2.py
 *_pb2.pyi
+venv/
+*_pb2.py
+generated-code/
+build
+generatedcode
+mavendir
+*.egg-info
+dist

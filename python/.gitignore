@@ -1,8 +1,0 @@
-venv/
-*_pb2.py
-generated-code/
-build
-generatedcode
-mavendir
-*.egg-info
-dist
