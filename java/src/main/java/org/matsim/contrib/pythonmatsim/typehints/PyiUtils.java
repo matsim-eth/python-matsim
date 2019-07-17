@@ -55,6 +55,8 @@ public class PyiUtils {
             addBootstrapClasses(classes);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 
         Packages packages = new Packages();
@@ -63,7 +65,11 @@ public class PyiUtils {
     }
 
     private static void addClasses(ClassLoader loader, Collection<Class<?>> classes) throws IOException {
-         for (ClassPath.ClassInfo c : ClassPath.from(loader).getAllClasses()) {
+        final Collection<ClassPath.ClassInfo> loadableClasses = ClassPath.from(loader).getAllClasses();
+
+        log.info("adding "+loadableClasses.size()+" classes from class loader "+loader);
+
+        for (ClassPath.ClassInfo c : loadableClasses) {
             try {
                 Class<?> loaded = c.load();
                 classes.add(loaded);
@@ -74,17 +80,36 @@ public class PyiUtils {
         }
     }
 
-    private static void addBootstrapClasses(Collection<Class<?>> classes) throws IOException {
+    private static void addBootstrapClasses(Collection<Class<?>> classes) throws IOException, ClassNotFoundException {
         // XXX See https://openjdk.java.net/jeps/220 for after Java 8
         // get URL of rt.jar, where all java.* classes are (they are not on the classpath and need to be handled ad-hoc)
         try {
             URL fileURL = ((JarURLConnection) ClassLoader.getSystemResource("java/lang/Class.class").openConnection())
                     .getJarFileURL();
 
+
+            JarFile file = ((JarURLConnection) ClassLoader.getSystemResource("java/lang/Class.class").openConnection())
+                    .getJarFile();
+
             ClassLoader cl = URLClassLoader.newInstance(new URL[]{new URL("jar:" + fileURL.toString() + "!/")});
-            addClasses(cl, classes);
+
+            final Collection<JarEntry> entries = Collections.list(file.entries());
+
+            log.info("loading "+entries.size()+" bootstrap classes from JAR "+fileURL);
+            for (JarEntry entry : entries) {
+                if (!entry.getName().endsWith(".class")) continue;
+                // Remove .class and pass from / to .
+                String className = entry.getName()
+                        .substring(0, entry.getName().length() - 6)
+                        .replace("/", ".");
+
+                Class classe = cl.loadClass(className);
+                classes.add(classe);
+            }
+
         }
         catch (ClassCastException e) {
+            log.info("loading bootstrap classes from JRT");
             FileSystem fs = FileSystems.getFileSystem(URI.create("jrt:/"));
 
             // with jrt, there is not classpath, so the Guava "getAllClasses" of class loader method does not work.
