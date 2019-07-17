@@ -18,27 +18,8 @@
 #                                                                         #
 # ####################################################################### #/
 
- 
-/* *********************************************************************** *
- * project: python-matsim
- * basic_usage.py
- *                                                                         *
- * *********************************************************************** *
- *                                                                         *
- * copyright       : (C) 2019 by the members listed in the COPYING,        *
- *                   LICENSE and WARRANTY file.                            *
- *                                                                         *
- * *********************************************************************** *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *   See also COPYING, LICENSE and WARRANTY file                           *
- *                                                                         *
- * *********************************************************************** */
 
- import pythonmatsim.jvm as jvm
+import pythonmatsim.jvm as jvm
 
 jvm.start_jvm()
 
@@ -74,7 +55,7 @@ if __name__ == "__main__":
 
             @listen_to(event_type.ActivityStartEvent, event_type.ActivityEndEvent)
             def handleAct(self, event: Union[event_type.ActivityStartEvent, event_type.ActivityEndEvent]):
-                # Somehow type hint above does not help. Need to investigate
+                # type hints for protobufs are unfortunately a bit noisy
                 print(event.persId)
 
         controler.addEventHandler(ShoutListener())
