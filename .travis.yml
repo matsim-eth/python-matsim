@@ -12,6 +12,10 @@ jdk:
   - oraclejdk8
   - openjdk8
 
+cache:
+  directories:
+  - $HOME/.m2
+
 env:
   global:
     - PYTHON=python
@@ -35,9 +39,7 @@ install:
     unzip protoc-3.6.0-linux-x86_64.zip &&
     popd
   - make python_dist PYTHON=$PYTHON
-  - cd python/
   - $PIP install $INST dist/*
-
 
 script:
   - $PYTHON -c "import pythonmatsim"
