@@ -30,12 +30,21 @@ class MyBuild(build):
 with open('../README.md') as f:
     long_description = f.read()
 
+# Hack to delay evaluation of "find packages" to after code was generated.
+# Our issue here is that there a a lot of generated packages, and in the long run we want those to be influenced
+# by command line options (for instance adding jars).
+# Caveat: this actually depends on implementation details of `setup` and might break with changes in them
+# (for instance if list of packages gets cached in a new list)
+class PackageFinder:
+    @property
+    def find_packages(self):
+        return find_packages('generatedcode/', exclude=('buildutils', 'test'))
+
 setup(
     name='pythonmatsim',
     version='0.1a1',
     package_dir={'': 'generatedcode/'},
-    # Note that this works only when code was already generated... Find a fix.
-    packages=find_packages('generatedcode/', exclude=('buildutils', 'test')),
+    packages=PackageFinder().find_packages,
     #package_data = {
     #    #'buildutils': '*.xml',
     #    'javaresources': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',

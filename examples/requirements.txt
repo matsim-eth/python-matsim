@@ -1,1 +1,1 @@
--e git+git@github.com:matsim-eth/python-matsim.git@094ec567d230042046efc97027527383b0711b9c#egg=pythonmatsim&subdirectory=python
+-e git+git@github.com:matsim-eth/python-matsim.git@4adc75ee522ead21f56017eab79938114b939a86#egg=pythonmatsim&subdirectory=python
