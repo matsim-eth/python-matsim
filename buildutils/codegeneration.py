@@ -193,20 +193,21 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
 
         with tempfile.TemporaryDirectory() as tmp:
             maven_dir = os.path.join(tmp, 'maven')
+            java_gen_dir = os.path.join(tmp, 'codegen')
             os.mkdir(maven_dir)
             build_and_start_jvm(maven_dir,
-                                tmp,
+                                java_gen_dir,
                                 'javawrappers')
 
-            shutil.move(os.path.join(tmp, 'javawrappers'), 'javawrappers')
+            shutil.move(os.path.join(java_gen_dir, 'javawrappers'), 'javawrappers')
 
-
-        shutil.rmtree('javaresources', ignore_errors=True)
-        os.mkdir('javaresources')
-        open(os.path.join('javaresources', '__init__.py'), 'a').close()
-        for f in os.listdir(os.path.join('mavendir', 'target')):
-            if f.endswith('jar-with-dependencies.jar'):
-                shutil.copy(
-                    os.path.join('mavendir', 'target', f),
-                    'javaresources')
+            shutil.rmtree('javaresources', ignore_errors=True)
+            os.mkdir('javaresources')
+            open(os.path.join('javaresources', '__init__.py'), 'a').close()
+            target_dir = os.path.join(maven_dir, 'target')
+            for f in os.listdir(target_dir):
+                if f.endswith('jar-with-dependencies.jar'):
+                    shutil.copy(
+                        os.path.join(target_dir, f),
+                        'javaresources')
 
