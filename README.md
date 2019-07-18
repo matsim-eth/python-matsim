@@ -12,7 +12,7 @@ Roadmap
 
 This is a wish-list of what should be there by Fall 2019:
 
-* [ ] Fast (enough) event handling
+* [x] Fast (enough) event handling
 * [ ] Fast (enough) data manipulation
-* [ ] Good enough IDE support for scenario and config
+* [x] Good enough IDE support for scenario and config
 * [ ] Deploy to PyPi and conda-forge
