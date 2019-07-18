@@ -19,7 +19,7 @@ python: python_dist | $(PYTHON_DIR)/venv
 	venv/bin/pip install dist/*
 
 python_dist: python_pbf | $(PYTHON_DIR)/venv
-	venv/bin/python setup.py codegen build bdist_wheel
+	venv/bin/python setup.py codegen build sdist bdist_wheel
 
 examples: python | examples/venv
 	cd examples && \
