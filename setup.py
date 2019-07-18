@@ -54,6 +54,8 @@ setup(
     #    'javaresources': 'python-matsim-instance-1.0-SNAPSHOT-jar-with-dependencies.jar',
     #},
     include_package_data=True,
+    # resources need to be accessed as normal file system files
+    zip_safe=False,
     url='https://github.com/matsim-eth/python-matsim',
     license='GNU GPL 3.0',
     author='Thibaut Dubernet',
