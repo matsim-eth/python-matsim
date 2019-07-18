@@ -71,11 +71,11 @@ setup(
         "Operating System :: OS Independent",
     ],
     setup_requires=[
-        'numpy==1.16.3',
+        'numpy>=1.6',
         'JPype1==0.7.0',
     ],
     install_requires=[
-        'numpy==1.16.3',
+        'numpy>=1.6',
         'JPype1==0.7.0',
         'protobuf==3.8.0',
     ],
