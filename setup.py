@@ -24,9 +24,6 @@ from distutils.command.build import build
 from buildutils.codegeneration import JavaAdapterCodeGenerationCommand
 
 
-class MyBuild(build):
-    sub_commands = [('codegen', None)] + build.sub_commands
-
 with open('README.md') as f:
     long_description = f.read()
 
@@ -86,7 +83,12 @@ setup(
     # Should also work with lower, but needs to be tested
     python_requires='>=3.5',
     cmdclass={
-      'codegen': JavaAdapterCodeGenerationCommand,
-      'build': MyBuild
+        # Not linked to any other command, on purpose:
+        # This way, one can distribute a source distribution without requiring users
+        # to run code generation.
+        # Otherwise, the source distribution is a mess, because it contains the generated code
+        # but not the pythonmatsim directory that is needed.
+        # Ideally, one should not need to copy pythonmatsim in generatedcode, but I did not find a way yet...
+        'codegen': JavaAdapterCodeGenerationCommand,
     },
 )

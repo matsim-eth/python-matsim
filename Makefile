@@ -15,11 +15,11 @@ python_pbf: maven | java/venv
 %/venv:
 	cd $(@D) && virtualenv -p $(PYTHON) venv/ && venv/bin/pip install -r requirements.txt
 
-python: python_pbf | $(PYTHON_DIR)/venv
-	venv/bin/python setup.py build sdist install
+python: python_dist | $(PYTHON_DIR)/venv
+	venv/bin/pip install dist/*
 
 python_dist: python_pbf | $(PYTHON_DIR)/venv
-	venv/bin/python setup.py build sdist bdist_wheel
+	venv/bin/python setup.py codegen build bdist_wheel
 
 examples: python | examples/venv
 	cd examples && \
