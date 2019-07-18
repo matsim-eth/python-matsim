@@ -13,7 +13,7 @@ python_pbf: maven | java/venv
 	cp -v java/target/generated-sources/python/*_pb2.py* ./
 
 %/venv:
-	cd $(@D) && virtualenv -p $(PYTHON) venv/ && venv/bin/pip install -r requirements.txt
+	cd $(@D) && virtualenv --clear -p $(PYTHON) venv/ && venv/bin/pip install -r requirements.txt
 
 python: python_dist | $(PYTHON_DIR)/venv
 	venv/bin/pip install dist/*
@@ -25,3 +25,12 @@ examples: python | examples/venv
 	cd examples && \
 		venv/bin/pip install --no-binary :all: -e ../ && \
 		venv/bin/pip freeze | grep '^-e' > requirements.txt
+
+test: python_dist 
+	virtualenv --clear -p $(PYTHON) testvenv/
+	testvenv/bin/pip install numpy
+	testvenv/bin/pip install dist/*.whl
+	test/venv/bin/python -m unittest test/*.py  
+
+clean:
+	rm -rf build dist javawrappers mavendir
