@@ -29,6 +29,7 @@ examples: python | examples/venv
 test: python_dist 
 	virtualenv --clear -p $(PYTHON) testvenv/
 	testvenv/bin/pip install numpy
+	testvenv/bin/pip install JPype1
 	testvenv/bin/pip install dist/*
 	test/venv/bin/python -m unittest test/*.py  
 
