@@ -17,3 +17,6 @@ generatedcode
 mavendir
 *.egg-info
 dist
+javaresources/
+javawrappers/
+testvenv/

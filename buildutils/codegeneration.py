@@ -30,6 +30,7 @@ import logging
 import pkg_resources
 import setuptools
 import shutil
+import tempfile
 
 _logger = logging.getLogger(__name__)
 
@@ -188,25 +189,24 @@ class JavaAdapterCodeGenerationCommand(setuptools.Command):
             # TODO: allow infered group_id and version
             add_dependency(group_id=group_id, artifact_id=artifact_id, version=version)
 
-        shutil.rmtree('generatedcode', ignore_errors=True)
-        if not os.path.exists('mavendir'):
-            os.mkdir('mavendir')
-        build_and_start_jvm(os.path.abspath('mavendir'),
-                            os.path.abspath('generatedcode'),
-                            'javawrappers')
+        shutil.rmtree('javawrappers', ignore_errors=True)
 
-        # TODO find a better way to do this, in setup.py itself
-        shutil.copytree('pythonmatsim', os.path.join('generatedcode', 'pythonmatsim'))
+        with tempfile.TemporaryDirectory() as tmp:
+            maven_dir = os.path.join(tmp, 'maven')
+            os.mkdir(maven_dir)
+            build_and_start_jvm(maven_dir,
+                                tmp,
+                                'javawrappers')
 
-        for f in os.listdir('.'):
-            if f != 'setup.py' and f.endswith(('.py', '.pyi')) :
-                shutil.copy(f, 'generatedcode')
+            shutil.move(os.path.join(tmp, 'javawrappers'), 'javawrappers')
 
-        os.mkdir(os.path.join('generatedcode', 'javaresources'))
-        open(os.path.join('generatedcode', 'javaresources', '__init__.py'), 'a').close()
+
+        shutil.rmtree('javaresources', ignore_errors=True)
+        os.mkdir('javaresources')
+        open(os.path.join('javaresources', '__init__.py'), 'a').close()
         for f in os.listdir(os.path.join('mavendir', 'target')):
             if f.endswith('jar-with-dependencies.jar'):
                 shutil.copy(
                     os.path.join('mavendir', 'target', f),
-                    os.path.join('generatedcode', 'javaresources'))
+                    'javaresources')
 

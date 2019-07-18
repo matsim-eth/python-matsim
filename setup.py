@@ -36,7 +36,6 @@ class PackageFinder:
     @property
     def find_packages(self):
         return find_packages(
-            'generatedcode/',
             exclude=(
                 'buildutils',
                 'java',
@@ -47,7 +46,6 @@ class PackageFinder:
 setup(
     name='pythonmatsim',
     version='0.1a1',
-    package_dir={'': 'generatedcode/'},
     packages=PackageFinder().find_packages,
     #package_data = {
     #    #'buildutils': '*.xml',
