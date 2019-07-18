@@ -44,3 +44,13 @@ install:
 script:
   - $PYTHON -c "import pythonmatsim"
   - $PYTHON -m unittest test/*_test.py
+
+deploy:
+    provider: pypi
+    user: "tduberne"
+    password:
+        secure: NjK880lxiHeBlJv7ZurckChh65VYpWRj96f6jGI7I89JZ+ujXo9a2D0ijwj7F9PrIXm6QeUbYzCE1/at8WxAnDAuQzuRZ8gzVvPFX4VaN9fIQWyhkJNyWaXyMvc7D9zFCO5rM0n//uafRDmSQTMNUH1E50nZ7LRdbenuHKDRoAnsHe4e0s7z5+Rh80Vho6ly4Y0/N0dCeTIg8uAXeuhPMbPvYZZhR6qL1mNaf2whUA/5H/kM0NnP+fXIBoN/GFWyp4T3rInv2Gj1Y8BvK5ZeF4/jSxRuD61vYgjDgpEYLrAt8PuJLjqOFegnATVv+npwpAgMueCgb8BeyyVKVforA2ePBqbjSqKzatmFAlNE1lQEfZ0emSVPhwHbG8695RrRBNCGNUngDMKPFpH5pNquAyC8wKP8ZW7bqtCJsxOn0YEq6tO00plPoXTq1tfhixl7ieJddqfyFCyTQ3RorPGJjs8pyX2fmPlZmtST77JkP1RVpou76/XihTwB6bq4Bbd/cmONUY53u+BPQHigIsDpLTkt+cabcuL7zBnSHh0sbLqTklicNIYhJPDeVtKVv1NpQJR84vxitBw6QQgL7AVKJlO2a3Ilr8UKRFxV/MUpUDZSedeyOesQrsDSaj/cs6lqOIIJka7bTHHbUHuOEHP7qOhcnGPJwJrXCmx/3zrDfxI=
+    on:
+        tags: true
+    skip_existing: true
+    skip_cleanup: true
