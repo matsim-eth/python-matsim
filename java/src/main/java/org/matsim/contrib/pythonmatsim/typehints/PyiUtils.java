@@ -370,7 +370,7 @@ public class PyiUtils {
         final boolean isStatic = Modifier.isStatic(method.getModifiers());
 
         if (isStatic) {
-            writer.write(prefix+"@classmethod");
+            writer.write(prefix+"@staticmethod");
             writer.newLine();
         }
 

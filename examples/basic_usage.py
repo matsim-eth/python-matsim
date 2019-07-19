@@ -52,7 +52,7 @@ def main():
 
         scenario = jscenario.ScenarioUtils.loadScenario(config)
 
-        # You can manipulate the scenario in any way you likemakeaa
+        # You can manipulate the scenario in any way you like
         # Type hints from Java generics are not yet supported, so if you want support, you need explicit hints
         link: jnetapi.Link
         for link in scenario.getNetwork().getLinks().values():
