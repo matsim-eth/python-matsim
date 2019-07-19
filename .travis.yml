@@ -20,7 +20,7 @@ env:
   global:
     - PYTHON=python
     - PIP=pip
-    - INST=""
+    - INST="--no-binary JPype1"
 
 #addons:
 #  apt:
