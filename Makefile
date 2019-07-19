@@ -13,10 +13,10 @@ python_pbf: maven | java/venv
 	cp -v java/target/generated-sources/python/*_pb2.py* ./
 
 %/venv:
-	cd $(@D) && virtualenv --clear -p $(PYTHON) venv/ && venv/bin/pip install -r requirements.txt
+	cd $(@D) && virtualenv --clear -p $(PYTHON) venv/ && venv/bin/pip install --no-binary JPype1 -r requirements.txt
 
 python: python_dist | $(PYTHON_DIR)/venv
-	venv/bin/pip install dist/*
+	venv/bin/pip install --no-binary JPype1 dist/*
 
 python_dist: python_pbf | $(PYTHON_DIR)/venv
 	venv/bin/python setup.py codegen build sdist
@@ -28,7 +28,7 @@ examples: python | examples/venv
 
 test: python_dist 
 	virtualenv --clear -p $(PYTHON) testvenv/
-	testvenv/bin/pip install numpy>=1.6
+	testvenv/bin/pip install numpy
 	testvenv/bin/pip install --no-binary JPype1 JPype1
 	testvenv/bin/pip install dist/*
 	testvenv/bin/python -m unittest test/*.py  

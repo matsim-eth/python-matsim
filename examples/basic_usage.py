@@ -20,18 +20,22 @@
 
 
 import pythonmatsim.jvm as jvm
+import numpy as np
 
 jvm.start_jvm()
 
 import javawrappers.org.matsim.core.config as jconfig
 import javawrappers.java.net as jnet
 import javawrappers.org.matsim.core.controler as jcontroler
+import javawrappers.org.matsim.core.scenario as jscenario
+import javawrappers.org.matsim.api.core.v01.network as jnetapi
+import javawrappers.org.matsim.api.core.v01.population as jpopapi
 
 from pythonmatsim.api.events import *
 from typing import Union
 
 import tempfile
-
+import jpype
 
 def main():
     # Do everything in a temporary directory that will be deleted at the end. Not always the best choice,
@@ -46,7 +50,25 @@ def main():
 
         config.controler().setOutputDirectory(tmp)
 
-        controler = jcontroler.Controler(config)
+        scenario = jscenario.ScenarioUtils.loadScenario(config)
+
+        # You can manipulate the scenario in any way you likemakeaa
+        # Type hints from Java generics are not yet supported, so if you want support, you need explicit hints
+        link: jnetapi.Link
+        for link in scenario.getNetwork().getLinks().values():
+            link.setCapacity(link.getCapacity() * 2)
+
+        person: jpopapi.Person
+        for person in scenario.getPopulation().getPersons().values():
+            plan: jpopapi.Plan
+            for plan in person.getPlans():
+                # JPype is usually rather smart at deducting the Java type from python primitive types, but there
+                # are some caveats. Here, for instance, the setScore method expects a Double object, but np.nan
+                # is a float that can only be converted to primitive types, such as double.
+                # jpype.JObject converts it to the "boxed" type.
+                plan.setScore(jpype.JObject(np.nan))
+
+        controler = jcontroler.Controler(scenario)
 
         class ShoutListener(EventListener):
             def reset(self, iteration):
@@ -56,12 +78,13 @@ def main():
             @listen_to(event_type.ActivityStartEvent, event_type.ActivityEndEvent)
             def handleAct(self, event: Union[event_type.ActivityStartEvent, event_type.ActivityEndEvent]):
                 # type hints for protobufs are unfortunately a bit noisy
+                # for the moment, the structure of the events is similar to the MATSim ones,
+                # but in a future version, it is planned to make them richer
                 print(event.persId)
 
         controler.addEventHandler(ShoutListener())
         controler.run()
 
 
-# This line is not strictly necessary, but helps IDEs identify that file as "executable"
 if __name__ == "__main__":
     main()
