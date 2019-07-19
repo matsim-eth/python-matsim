@@ -8,7 +8,7 @@ It is mostly meant for teaching MATSim to non-programmers without loosing too mu
 of the ability to configure, modify and analyse MATSim runs.
 
 Roadmap
--------
+---------
 
 This is a wish-list of what should be there by Fall 2019:
 
@@ -16,3 +16,10 @@ This is a wish-list of what should be there by Fall 2019:
 * [ ] Fast (enough) data manipulation
 * [x] Good enough IDE support for scenario and config
 * [ ] Deploy to PyPi and conda-forge
+
+Changelog
+---------
+
+- **Next version - unreleased**
+    - static type hints for all java classes 
+    - protocol-buffer based event communication
