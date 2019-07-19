@@ -28,10 +28,10 @@ examples: python | examples/venv
 
 test: python_dist 
 	virtualenv --clear -p $(PYTHON) testvenv/
-	testvenv/bin/pip install numpy
-	testvenv/bin/pip install JPype1
+	testvenv/bin/pip install numpy>=1.6
+	testvenv/bin/pip install --no-binary JPype1 JPype1
 	testvenv/bin/pip install dist/*
-	test/venv/bin/python -m unittest test/*.py  
+	testvenv/bin/python -m unittest test/*.py  
 
 clean:
 	rm -rf build dist javawrappers mavendir
