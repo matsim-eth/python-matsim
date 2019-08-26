@@ -21,5 +21,7 @@ Changelog
 ---------
 
 - **Next version - unreleased**
+
+- **0.1.0 - 2019-08-26**
     - static type hints for all java classes 
     - protocol-buffer based event communication
