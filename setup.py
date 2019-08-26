@@ -45,7 +45,7 @@ class PackageFinder:
 
 setup(
     name='pythonmatsim',
-    version='0.1.1',
+    version='0.1.2',
     packages=PackageFinder().find_packages,
     #package_data = {
     #    #'buildutils': '*.xml',

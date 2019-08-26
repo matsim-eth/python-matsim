@@ -41,6 +41,8 @@ Changelog
 ---------
 
 - **Next version - unreleased**
+
+- **0.1.2 - 2019-08-26**
     - fix additional problems with distribution
 
 - **0.1.1 - 2019-08-26**
