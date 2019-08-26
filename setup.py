@@ -81,7 +81,7 @@ setup(
     ],
     # Need type hints
     # Should also work with lower, but needs to be tested
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     cmdclass={
         # Not linked to any other command, on purpose:
         # This way, one can distribute a source distribution without requiring users
