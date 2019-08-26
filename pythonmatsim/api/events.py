@@ -24,9 +24,9 @@ import jpype as jp
 from collections import defaultdict
 import inspect
 
-from EventBuffer_pb2 import EventBuffer
+from pythonmatsim.EventBuffer_pb2 import EventBuffer
 # for the side effect of re-exporting
-import events_pb2 as event_type
+import pythonmatsim.events_pb2 as event_type
 
 # this assumes the JVM is started with the correct classpath
 

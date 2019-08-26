@@ -10,7 +10,9 @@ maven:
 
 python_pbf: maven | java/venv
 	cd java/ && ./generate_python_stubs.sh
-	cp -v java/target/generated-sources/python/*_pb2.py* ./
+	cp -v java/target/generated-sources/python/*_pb2.py* pythonmatsim/
+	cat pythonmatsim/EventBuffer_pb2.py | sed 's,events_pb2,pythonmatsim.events_pb2,' > abc
+	mv abc pythonmatsim/EventBuffer_pb2.py
 
 %/venv:
 	cd $(@D) && virtualenv --clear -p $(PYTHON) venv/ && venv/bin/pip install --no-binary JPype1 -r requirements.txt
