@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/matsim-eth/python-matsim.svg?branch=master)](https://travis-ci.com/matsim-eth/python-matsim)
+[![Build Status](https://travis-ci.org/matsim-eth/python-matsim.svg?branch=master)](https://travis-ci.org/matsim-eth/python-matsim)
 
 Python API for MATSim
 =====================
