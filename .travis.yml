@@ -34,21 +34,12 @@ matrix:
       dist: xenial
       language: python
 
-    - name: "Python 3.8 on Xenial Linux"
-      python: 3.8
+    - name: "Python 3.6 on Xenial Linux"
+      python: 3.6
       dist: xenial
       language: python
 
     - name: "Python 3.7 on macOS"
-      os: osx
-      osx_image: xcode10.2
-      language: java
-      env:
-        - PYTHON=python3
-        - INST="--user --no-binary JPype1"
-        - PIP=pip3
-
-    - name: "Python 3.8 on macOS"
       os: osx
       osx_image: xcode10.2
       language: java
