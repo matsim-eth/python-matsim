@@ -51,6 +51,7 @@ matrix:
 
 # for manual installation of protoc. Needed for proto3 format...
 before_install:
+  - $PIP install $INST virtualenv
   - export PATH=$HOME/protobuf/bin:$PATH
   - export C_INCLUDE_PATH=$C_INCLUDE_PATH:$HOME/protobuf/include
   - export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$HOME/protobuf/include
