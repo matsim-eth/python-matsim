@@ -151,6 +151,8 @@ public class PyiUtils {
             generatePyiFiles(rootPath, rootPackage);
             generatePythonFiles(rootPath, rootPackage);
             generateInitFiles(new File(rootPath));
+
+            new File(rootPath +"/"+ rootPackage +"/py.typed").createNewFile();
         }
         catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -1,7 +1,9 @@
-recursive-include generatedcode *jar-with-dependencies.jar
-recursive-include . *.pyi
+recursive-include javaresources *jar-with-dependencies.jar
+global-include *.pyi py.typed
 
-include README.md COPYING LICENSE WARRANTY py.typed
+include README.md COPYING LICENSE WARRANTY
+
+exclude java/
 
 # Necessary to distribute all required utilities for installing source distribution
 graft buildutils

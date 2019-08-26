@@ -40,6 +40,7 @@ Changelog
 ---------
 
 - **Next version - unreleased**
+    - fix additional problems with distribution
 
 - **0.1.1 - 2019-08-26**
     - fix distribution of stub files (type hints)
