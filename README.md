@@ -40,6 +40,7 @@ Changelog
 ---------
 
 - **Next version - unreleased**
+    - fix distribution of stub files (type hints)
 
 - **0.1.0 - 2019-08-26**
     - static type hints for all java classes 
