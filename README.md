@@ -18,6 +18,7 @@ To install the package using `pip`, simply run the following:
 # The installation procedure requires numpy to be available,
 # so you have to install it first if not already available
 pip install numpy
+pip install --no-binary JPype1 JPype1
 pip install pythonmatsim
 ```
 
