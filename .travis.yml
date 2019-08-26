@@ -1,16 +1,12 @@
 os:
   - linux
-  - osx
-
-# to get python working on osx, see https://github.com/travis-ci/travis-ci/issues/9929
-osx_image: xcode8.3
 
 language: python
 
-python:
-#  - '3.5'
-  - '3.6'
-  - '3.7'
+#python:
+##  - '3.5'
+#  - '3.6'
+#  - '3.7'
 
 jdk:
   - oraclejdk8
@@ -30,6 +26,37 @@ env:
 #  apt:
 #    packages:
 #    - protobuf-compiler
+
+matrix:
+  include:
+    - name: "Python 3.7 on Xenial Linux"
+      python: 3.7
+      dist: xenial
+      language: python
+
+    - name: "Python 3.8 on Xenial Linux"
+      python: 3.8
+      dist: xenial
+      language: python
+
+    - name: "Python 3.7 on macOS"
+      os: osx
+      osx_image: xcode10.2
+      language: java
+      env:
+        - PYTHON=python3
+        - INST="--user --no-binary JPype1"
+        - PIP=pip3
+
+    - name: "Python 3.8 on macOS"
+      os: osx
+      osx_image: xcode10.2
+      language: java
+      env:
+        - PYTHON=python3
+        - INST="--user --no-binary JPype1"
+        - PIP=pip3
+
 
 # for manual installation of protoc. Needed for proto3 format...
 before_install:
