@@ -77,7 +77,7 @@ setup(
     install_requires=[
         'numpy>=1.6',
         'JPype1==0.7.0',
-        'protobuf==3.8.0',
+        'protobuf==3.18.3',
     ],
     # Need type hints
     # Should also work with lower, but needs to be tested
